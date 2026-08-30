@@ -18,3 +18,35 @@ git commit -m "feat(scope): description"
 
 # Push
 git push -u origin feature/task-name
+
+After the push, Git will usually show a message with a GitHub link or a prompt to create a Pull Request.
+
+You can either click that link or go to:
+
+GitHub Repository
+→ Pull Requests
+→ New Pull Request
+
+Then set:
+
+Base branch:    develop
+Compare branch: feature/task-name
+
+So:
+
+feature/task-name
+        ↓
+   Pull Request
+        ↓
+      develop
+
+Add:
+
+Title — what you implemented
+Description — what changed
+Reviewer — relevant team member(s)
+Assignee — yourself, if appropriate
+
+Then click:
+
+Create Pull Request
