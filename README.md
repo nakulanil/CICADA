@@ -1,3 +1,4 @@
+---------------------------------------------------------WORKFLOW------------------------------------------------
 # Start a new task
 git checkout develop
 git pull origin develop
@@ -50,3 +51,21 @@ Assignee — yourself, if appropriate
 Then click:
 
 Create Pull Request
+
+
+------------------------------------------------PROJECT STRUCTURE------------------------------------------------
+# Secure DMS
+
+Secure Digital Case and Document Management System.
+
+## Project Structure
+
+- `backend/` — Django REST API and backend services
+- `frontend/` — React frontend
+- `infrastructure/` — Docker and deployment configuration
+- `docs/` — Architecture, API and security documentation
+- `tests/` — Integration, security and end-to-end tests
+
+## Development
+
+Development setup instructions will be added as the project is initialized.
