@@ -1,9 +1,9 @@
 :root {
-  font-family: Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #1f2937;
-  background: #ffffff;
+  color: #1e293b;
+  background-color: #f1f5f9;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -14,22 +14,19 @@
   box-sizing: border-box;
 }
 
-html {
-  background: #ffffff;
-}
-
+html,
 body {
   margin: 0;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(245, 158, 11, 0.08), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.08), transparent 26%),
-    linear-gradient(135deg, #ffffff 0%, #f5f8fb 40%, #f8f7f3 100%);
+  background-color: #f1f5f9;
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
