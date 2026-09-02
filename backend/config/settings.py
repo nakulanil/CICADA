@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "accounts",
     "cases",
+    "persons",
+    "documents",
+    "audit",
 ]
 
 MIDDLEWARE = [
