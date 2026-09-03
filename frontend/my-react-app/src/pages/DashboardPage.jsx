@@ -5,20 +5,21 @@ import CDACHeader from '../components/CDACHeader'
 import CDACFooter from '../components/CDACFooter'
 import CaseFileCard from '../components/CaseFileCard'
 import CaseDetailsWithNotepadModal from '../components/CaseDetailsWithNotepadModal'
+import ProfileViewerModal from '../components/ProfileViewerModal'
 
 /**
  * Dashboard / Home Page
- * - Top greeting with profile icon and officer position
- * - Search bar
- * - Case progress filters: Active, Under Investigation, In Court, Closed, Archived
+ * - Top profile ribbon with large eye-catching name, rank, and Edit Profile button
+ * - Search bar and cases spanning full screen width
+ * - Case progress filter tabs: Active, Under Investigation, In Court, Closed, Archived
  * - Vertical division: Self-Assigned Cases (Left) vs Senior-Delegated Cases (Right)
- * - Case Dossier with Right-Side Investigation Notepad
+ * - Large Expanded Case Dossier with Left Cases Navigator Sidebar & Right Notepad
  */
 export default function DashboardPage() {
   const navigate = useNavigate()
   const greeting = getTimeGreeting()
 
-  const [currentUser] = useState(() => {
+  const [currentUser, setCurrentUser] = useState(() => {
     try {
       const stored = localStorage.getItem('dems_active_user')
       if (stored) return JSON.parse(stored)
@@ -38,6 +39,8 @@ export default function DashboardPage() {
       station: 'Central Police Station, Division I',
     }
   })
+
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
 
   // Master Cases State with persisted notes
   const [casesList, setCasesList] = useState(() => {
@@ -148,24 +151,37 @@ export default function DashboardPage() {
     <div className="app-page-wrapper">
       <CDACHeader activePage="dashboard" />
 
-      {/* Officer Profile Header Banner */}
+      {/* Officer Profile Header Banner (Enhanced Height, Eye-Catching Name, No PNO/Org above Name) */}
       <section className="user-profile-header-strip">
-        <div className="site-container user-strip-flex">
-          {/* Left: Avatar & Rank */}
+        <div className="dash-full-container user-strip-flex">
+          {/* Left: Clickable Avatar, Large Prominent Name, Rank, and Edit Profile Button */}
           <div className="profile-left-block">
-            <div className="profile-avatar-square">
+            <button
+              type="button"
+              className="profile-avatar-square"
+              onClick={() => setIsProfileModalOpen(true)}
+              title="Click to view & edit your profile"
+            >
               {currentUser.name
                 .split(' ')
                 .map((n) => n[0])
                 .slice(0, 2)
                 .join('')}
-            </div>
+            </button>
+
             <div className="profile-text-block">
-              <div className="pno-row">
-                <span className="badge-pno">{currentUser.pno}</span>
-                <span className="badge-org">{currentUser.orgName}</span>
+              <div className="profile-name-row">
+                <h2 className="profile-officer-name">{currentUser.name}</h2>
+                <button
+                  type="button"
+                  className="btn-profile-edit-badge"
+                  onClick={() => setIsProfileModalOpen(true)}
+                  title="Edit Username, Email, Name or Password"
+                >
+                  👤 Edit Profile / Credentials
+                </button>
               </div>
-              <h2 className="profile-officer-name">{currentUser.name}</h2>
+
               <span className="profile-rank-subtitle">
                 {currentUser.roleName} • {currentUser.cadre}
               </span>
@@ -199,8 +215,8 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Main Dashboard Workspace */}
-      <main className="site-container page-content-box">
+      {/* Main Dashboard Workspace (Full Window Width) */}
+      <main className="dash-full-container page-content-box">
         {/* Search Bar & Progress Filter Tabs */}
         <div className="search-filter-portlet">
           <div className="search-bar-row">
@@ -344,13 +360,23 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* Case Details Dossier with Integrated Right-Side Investigation Notepad */}
+      {/* Expanded Case Details Dossier with Left Sidebar of other cases & Right Notepad */}
       <CaseDetailsWithNotepadModal
         selectedCase={selectedCase}
+        allCases={filteredCases}
         currentUser={currentUser}
         onClose={() => setSelectedCaseId(null)}
+        onSelectCase={(c) => setSelectedCaseId(c.id)}
         onAddNote={handleAddNote}
         onDeleteNote={handleDeleteNote}
+      />
+
+      {/* Profile Viewer & Account Settings Modal */}
+      <ProfileViewerModal
+        isOpen={isProfileModalOpen}
+        currentUser={currentUser}
+        onClose={() => setIsProfileModalOpen(false)}
+        onUpdateUser={(updated) => setCurrentUser(updated)}
       />
 
       <CDACFooter />

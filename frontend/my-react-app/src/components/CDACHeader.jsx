@@ -4,9 +4,11 @@ import { DEMSBadge } from './DEMSLogo'
 
 /**
  * Clean Early 2010s Official Top Header Bar
+ * On Dashboard page, hides +register and login buttons, brand links directly to Home page.
  */
 export default function CDACHeader({ activePage = 'home' }) {
   const navigate = useNavigate()
+  const isDashboard = activePage === 'dashboard'
 
   return (
     <header className="gov-main-header">
@@ -27,8 +29,8 @@ export default function CDACHeader({ activePage = 'home' }) {
       {/* Main Navigation Bar */}
       <div className="gov-navbar">
         <div className="site-container nav-flex">
-          {/* Logo & Title */}
-          <Link to="/" className="brand-link">
+          {/* Logo & Title (Redirects towards Home Page) */}
+          <Link to="/" className="brand-link" title="Go to Home Page">
             <DEMSBadge size={38} />
             <div className="brand-text">
               <span className="brand-title">Digital Evidence Management System (DEMS)</span>
@@ -36,26 +38,28 @@ export default function CDACHeader({ activePage = 'home' }) {
             </div>
           </Link>
 
-          {/* Action Buttons */}
-          <div className="nav-actions">
-            <Link to="/" className={`nav-link-btn ${activePage === 'home' ? 'active' : ''}`}>
-              Home
-            </Link>
-            <button
-              type="button"
-              className="btn-glossy-register"
-              onClick={() => navigate('/register')}
-            >
-              + Register
-            </button>
-            <button
-              type="button"
-              className="btn-glossy-login"
-              onClick={() => navigate('/login')}
-            >
-              Login ➔
-            </button>
-          </div>
+          {/* Action Buttons: Only shown on Landing/Auth pages, Hidden on Dashboard page */}
+          {!isDashboard && (
+            <div className="nav-actions">
+              <Link to="/" className={`nav-link-btn ${activePage === 'home' ? 'active' : ''}`}>
+                Home
+              </Link>
+              <button
+                type="button"
+                className="btn-glossy-register"
+                onClick={() => navigate('/register')}
+              >
+                + Register
+              </button>
+              <button
+                type="button"
+                className="btn-glossy-login"
+                onClick={() => navigate('/login')}
+              >
+                Login ➔
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

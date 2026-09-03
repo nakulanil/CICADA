@@ -1,16 +1,26 @@
 /* ==========================================================================
    DIGITAL EVIDENCE MANAGEMENT SYSTEM (DEMS)
    Early 2010s Institutional & Government Portal Stylesheet
-   Clean, focused, glossy gradients, beveled panels, folder tabs & legal pad notepad
+   Full-Width Layout, Expanded Case Navigator Workspace & Profile Management
    ========================================================================== */
 
 /* -------------------------------------------------------------
-   1. GLOBAL CONTAINER & BOXED LAYOUT
+   1. GLOBAL CONTAINER & FULL-WIDTH LAYOUT
    ------------------------------------------------------------- */
 .site-container {
-  max-width: 1180px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 16px;
+  width: 100%;
+}
+
+/* Full window width container for dashboard to stretch edge-to-edge */
+.dash-full-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 20px;
+  box-sizing: border-box;
 }
 
 .app-page-wrapper {
@@ -18,10 +28,11 @@
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  max-width: 1200px;
-  margin: 12px auto;
-  border: 1px solid #99b3cc;
-  box-shadow: 0 2px 14px rgba(0, 34, 68, 0.2);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  box-shadow: none;
 }
 
 /* -------------------------------------------------------------
@@ -394,7 +405,7 @@
    4. FORMS (REGISTRATION & LOGIN) - EARLY 2010s BOXED SHELL
    ------------------------------------------------------------- */
 .page-content-box {
-  padding: 20px 16px 36px;
+  padding: 16px 20px 32px;
 }
 
 .form-panel-shell {
@@ -605,111 +616,129 @@
 }
 
 /* -------------------------------------------------------------
-   5. DASHBOARD - USER HEADER STRIP
+   5. DASHBOARD - ENHANCED USER PROFILE RIBBON
    ------------------------------------------------------------- */
 .user-profile-header-strip {
   background: linear-gradient(to bottom, #003366 0%, #001f3f 100%);
   color: #ffffff;
   border-bottom: 2px solid #c5a059;
-  padding: 10px 0;
+  padding: 16px 0;
 }
 
 .user-strip-flex {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
 }
 
 .profile-left-block {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
+/* Clickable Avatar Button */
 .profile-avatar-square {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   background: linear-gradient(to bottom, #0066cc 0%, #003388 100%);
   border: 2px solid #ffd700;
-  border-radius: 2px;
+  border-radius: 3px;
   display: grid;
   place-items: center;
   color: #ffffff;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.profile-avatar-square:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 8px #ffd700;
 }
 
 .profile-text-block {
   display: flex;
   flex-direction: column;
+  gap: 3px;
 }
 
-.pno-row {
+.profile-name-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
 }
 
-.badge-pno {
-  font-size: 9.5px;
-  font-family: monospace;
-  font-weight: bold;
-  background: #ffaa00;
-  color: #001f3f;
-  padding: 1px 4px;
-  border-radius: 2px;
-}
-
-.badge-org {
-  font-size: 10px;
-  color: #ffd700;
-  font-weight: bold;
-}
-
+/* Prominent Eye-Catching Name */
 .profile-officer-name {
-  margin: 1px 0 0;
-  font-size: 14px;
+  margin: 0;
+  font-size: 22px;
   font-weight: bold;
   color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.3px;
+}
+
+.btn-profile-edit-badge {
+  background: linear-gradient(to bottom, #f0f6fc 0%, #d0e2f2 100%);
+  border: 1px solid #7ea8cc;
+  color: #003366;
+  font-size: 10.5px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.btn-profile-edit-badge:hover {
+  background: linear-gradient(to bottom, #ffd700 0%, #ffaa00 100%);
+  color: #001f3f;
+  border-color: #cc8800;
 }
 
 .profile-rank-subtitle {
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: #dce7f2;
+  font-weight: 500;
 }
 
 .profile-right-block {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   text-align: right;
 }
 
 .greeting-label {
-  font-size: 10.5px;
+  font-size: 11px;
   color: #ffd700;
 }
 
 .greeting-bold {
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: #ffffff;
 }
 
 .date-time-tag {
-  font-size: 10px;
+  font-size: 10.5px;
   color: #a0b8d0;
+  margin-top: 1px;
 }
 
 .btn-signout {
   background: linear-gradient(to bottom, #444444 0%, #222222 100%);
   border: 1px solid #111111;
   color: #ffffff;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 2px;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .btn-signout:hover {
@@ -717,22 +746,24 @@
 }
 
 /* -------------------------------------------------------------
-   6. DASHBOARD - SEARCH & FOLDER-STYLE PROGRESS TABS
+   6. DASHBOARD - SEARCH & FOLDER-STYLE PROGRESS TABS (Full Width)
    ------------------------------------------------------------- */
 .search-filter-portlet {
   background: #ffffff;
   border: 1px solid #a6bfd5;
   border-radius: 2px;
-  padding: 10px 12px;
-  margin-bottom: 14px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-bar-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 14px;
+  margin-bottom: 12px;
 }
 
 .search-box-wrap {
@@ -742,19 +773,20 @@
 
 .search-icon {
   position: absolute;
-  left: 8px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .input-case-search {
   width: 100%;
-  padding: 6px 26px 6px 26px;
+  padding: 8px 30px 8px 30px;
   border: 1px solid #7f9db9;
   border-radius: 2px;
-  font-size: 11.5px;
+  font-size: 12px;
   background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 .input-case-search:focus {
@@ -765,22 +797,22 @@
 
 .btn-clear-input {
   position: absolute;
-  right: 6px;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   background: #d4e2ee;
   border: 1px solid #a6bfd5;
   border-radius: 50%;
-  width: 15px;
-  height: 15px;
-  font-size: 8px;
+  width: 16px;
+  height: 16px;
+  font-size: 9px;
   cursor: pointer;
   display: grid;
   place-items: center;
 }
 
 .search-count-label {
-  font-size: 10.5px;
+  font-size: 11px;
   color: #555555;
   white-space: nowrap;
 }
@@ -789,22 +821,22 @@
 .folder-tabs-row {
   display: flex;
   align-items: flex-end;
-  gap: 6px;
+  gap: 8px;
   border-bottom: 2px solid #005baa;
   padding-top: 4px;
 }
 
 .tabs-heading-label {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
   color: #003366;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .tabs-group {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
+  gap: 3px;
   flex-wrap: wrap;
 }
 
@@ -813,14 +845,14 @@
   border: 1px solid #a6bfd5;
   border-bottom: none;
   color: #003366;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 5px 10px;
+  padding: 6px 12px;
   border-radius: 3px 3px 0 0;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   position: relative;
   bottom: -2px;
 }
@@ -830,16 +862,16 @@
   border: 2px solid #005baa;
   border-bottom: 2px solid #ffffff;
   color: #003366;
-  padding: 6px 12px;
+  padding: 7px 14px;
   z-index: 2;
 }
 
 .tab-pill-count {
   background: #c8d9e6;
   color: #002244;
-  font-size: 9.5px;
-  padding: 1px 4px;
-  border-radius: 6px;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 8px;
 }
 
 .folder-tab-btn.active .tab-pill-count {
@@ -848,12 +880,13 @@
 }
 
 /* -------------------------------------------------------------
-   7. DUAL COLUMN CASES WRAPPER
+   7. DUAL COLUMN CASES WRAPPER (Full Window Width)
    ------------------------------------------------------------- */
 .dual-column-cases-wrap {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 16px;
+  width: 100%;
 }
 
 .cases-column {
@@ -865,7 +898,7 @@
 }
 
 .column-bar {
-  padding: 8px 12px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -883,7 +916,7 @@
 }
 
 .column-sub-tag {
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: bold;
   color: #ffd700;
   display: block;
@@ -891,7 +924,7 @@
 
 .column-title {
   margin: 1px 0 0;
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: bold;
   color: #ffffff;
   display: flex;
@@ -900,18 +933,18 @@
 }
 
 .count-tag {
-  font-size: 9.5px;
-  padding: 1px 5px;
-  border-radius: 6px;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
   background: #ffffff;
   color: #001f3f;
   font-weight: bold;
 }
 
 .role-tag-pill {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
-  padding: 2px 5px;
+  padding: 2px 6px;
   border-radius: 2px;
   background: rgba(0, 0, 0, 0.3);
   color: #ffffff;
@@ -919,26 +952,26 @@
 }
 
 .column-card-list {
-  padding: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   background: #f4f8fb;
   flex: 1;
 }
 
 .empty-state-card {
-  padding: 24px 14px;
+  padding: 30px 16px;
   text-align: center;
   color: #666666;
   background: #ffffff;
   border: 1px dashed #b0c4de;
   border-radius: 2px;
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .empty-icon {
-  font-size: 20px;
+  font-size: 22px;
   display: block;
   margin-bottom: 4px;
 }
@@ -947,12 +980,12 @@
   background: linear-gradient(to bottom, #0066cc 0%, #003388 100%);
   color: #ffffff;
   border: 1px solid #002266;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 2px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 /* -------------------------------------------------------------
@@ -963,11 +996,13 @@
   border: 1px solid #b8ccd8;
   border-left: 4px solid #005baa;
   border-radius: 2px;
-  padding: 10px 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .case-file-card:hover {
   border-color: #005baa;
+  box-shadow: 0 2px 6px rgba(0, 51, 102, 0.12);
 }
 
 .delegated-case-card {
@@ -979,17 +1014,17 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .fir-badge {
   background: #003366;
   color: #ffffff;
   font-family: monospace;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 1px 5px;
+  padding: 2px 6px;
   border-radius: 2px;
 }
 
@@ -998,15 +1033,15 @@
 }
 
 .case-date {
-  font-size: 10px;
+  font-size: 10.5px;
   color: #666666;
 }
 
 /* Progress Badges */
 .progress-badge {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 2px;
   text-transform: uppercase;
 }
@@ -1017,13 +1052,15 @@
   border: 1px solid #398439;
 }
 
-.status-under-inv {
+.status-under-inv,
+.status-under-investigation {
   background: linear-gradient(to bottom, #f0ad4e 0%, #ec971f 100%);
   color: #ffffff;
   border: 1px solid #d58512;
 }
 
-.status-court {
+.status-court,
+.status-in-court {
   background: linear-gradient(to bottom, #9b59b6 0%, #8e44ad 100%);
   color: #ffffff;
   border: 1px solid #7d3c98;
@@ -1042,8 +1079,8 @@
 }
 
 .case-title-text {
-  margin: 0 0 4px;
-  font-size: 12px;
+  margin: 0 0 5px;
+  font-size: 12.5px;
   font-weight: bold;
   color: #003366;
   line-height: 1.35;
@@ -1052,13 +1089,13 @@
 .case-legal-sections {
   background: #f4f8fb;
   border: 1px solid #d4e2ee;
-  padding: 3px 6px;
+  padding: 4px 6px;
   border-radius: 2px;
   margin-bottom: 6px;
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: 10.5px;
 }
 
 .section-label {
@@ -1100,7 +1137,7 @@
 }
 
 .directive-header {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
   color: #994d00;
   display: flex;
@@ -1113,7 +1150,7 @@
   font-size: 10.5px;
   color: #4a2800;
   font-style: italic;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .case-meta-grid,
@@ -1144,7 +1181,7 @@
 
 .case-summary-para {
   margin: 0 0 8px;
-  font-size: 10.5px;
+  font-size: 11px;
   color: #444444;
   line-height: 1.35;
 }
@@ -1154,7 +1191,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding-top: 6px;
+  padding-top: 8px;
   border-top: 1px solid #e2edf6;
 }
 
@@ -1169,9 +1206,9 @@
   background: #f0f4f8;
   border: 1px solid #cbd9e6;
   color: #444444;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
-  padding: 1px 4px;
+  padding: 1px 5px;
   border-radius: 2px;
 }
 
@@ -1185,9 +1222,9 @@
   background: linear-gradient(to bottom, #0066cc 0%, #003388 100%);
   color: #ffffff;
   border: 1px solid #002266;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 2px;
   cursor: pointer;
   white-space: nowrap;
@@ -1203,59 +1240,64 @@
 }
 
 /* -------------------------------------------------------------
-   9. CASE DETAILS & RULED YELLOW LEGAL PAD NOTEPAD
+   9. EXPANDED CASE DOSSIER & SIDEBAR MODAL WORKSPACE (Large Window)
    ------------------------------------------------------------- */
 .dems-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 24, 48, 0.8);
+  background: rgba(0, 24, 48, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 10px;
   z-index: 1000;
 }
 
-.dems-modal-container {
+/* Large, spacious workspace window */
+.dems-expanded-workspace-modal {
   background: #ffffff;
   border: 2px solid #003366;
   border-radius: 3px;
-  width: min(1140px, 98%);
-  max-height: 94vh;
+  width: 98vw;
+  height: 94vh;
+  max-width: 1780px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
 }
 
 .dems-modal-top-bar {
   background: linear-gradient(to bottom, #003366 0%, #001f3f 100%);
   color: #ffffff;
-  padding: 8px 14px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   border-bottom: 2px solid #c5a059;
+  flex-shrink: 0;
 }
 
 .modal-title-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .case-id-badge {
   background: #ffaa00;
   color: #001f3f;
   font-family: monospace;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 2px 5px;
+  padding: 2px 6px;
   border-radius: 2px;
 }
 
 .case-title-main {
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: bold;
   color: #ffffff;
 }
@@ -1263,35 +1305,162 @@
 .modal-actions-right {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.btn-modal-close {
-  background: linear-gradient(to bottom, #cc0000 0%, #880000 100%);
+/* Top "Done" Button */
+.btn-modal-done-top {
+  background: linear-gradient(to bottom, #0077cc 0%, #004488 100%);
   color: #ffffff;
-  border: 1px solid #550000;
-  font-size: 10.5px;
+  border: 1px solid #002244;
+  font-size: 11px;
   font-weight: bold;
-  padding: 3px 8px;
+  padding: 4px 14px;
   border-radius: 2px;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
-.dems-modal-dual-body {
+.btn-modal-done-top:hover {
+  background: linear-gradient(to bottom, #0088ee 0%, #0055aa 100%);
+}
+
+/* 3-Pane Body: Sidebar (Left), Dossier (Middle), Notepad (Right) */
+.dems-modal-three-pane-body {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: 280px 1.4fr 1.15fr;
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   background: #f0f4f8;
 }
 
-/* LEFT PANE: Case Dossier */
-.modal-left-case-details {
-  padding: 14px;
-  border-right: 1px solid #b8ccd8;
+/* ================= 1. LEFT SIDEBAR: OTHER CASES ================= */
+.modal-left-cases-sidebar {
+  background: #f4f8fb;
+  border-right: 2px solid #b8ccd8;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  overflow: hidden;
+}
+
+.sidebar-header-bar {
+  background: linear-gradient(to bottom, #e2ecf5 0%, #cbdde9 100%);
+  border-bottom: 1px solid #a6bfd5;
+  padding: 8px 10px;
+}
+
+.sidebar-title {
+  font-size: 11.5px;
+  font-weight: bold;
+  color: #003366;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.sidebar-filter-tabs {
+  display: flex;
+  gap: 3px;
+}
+
+.btn-sb-tab {
+  background: #ffffff;
+  border: 1px solid #a6bfd5;
+  color: #003366;
+  font-size: 9.5px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+}
+
+.btn-sb-tab.active {
+  background: #005baa;
+  color: #ffffff;
+  border-color: #003366;
+}
+
+.sidebar-cases-list {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sidebar-case-item {
+  background: #ffffff;
+  border: 1px solid #c8d8e7;
+  border-left: 3px solid #005baa;
+  border-radius: 2px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.sidebar-case-item:hover {
+  background: #eef5fc;
+  border-color: #005baa;
+}
+
+.sidebar-case-item.active-case-item {
+  background: #e1effa;
+  border: 1.5px solid #005baa;
+  border-left: 4px solid #005baa;
+  box-shadow: 0 1px 3px rgba(0, 51, 102, 0.2);
+}
+
+.sidebar-case-item.sb-del-item {
+  border-left-color: #cc6600;
+}
+
+.sb-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.sb-fir-tag {
+  font-size: 9.5px;
+  font-family: monospace;
+  font-weight: bold;
+  color: #003366;
+}
+
+.sb-status-pill {
+  font-size: 8.5px;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.sb-case-title {
+  font-size: 10.5px;
+  font-weight: bold;
+  color: #222222;
+  line-height: 1.3;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sb-case-type-meta {
+  font-size: 9px;
+  color: #666666;
+}
+
+/* ================= 2. MIDDLE COLUMN: CASE DOSSIER ================= */
+.modal-middle-case-details {
+  padding: 16px;
+  border-right: 2px solid #b8ccd8;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   overflow-y: auto;
   background: #ffffff;
 }
@@ -1300,38 +1469,38 @@
   background: #f8fbfe;
   border: 1px solid #c8d8e7;
   border-radius: 2px;
-  padding: 8px 10px;
+  padding: 10px 12px;
 }
 
 .dossier-sec-title {
-  margin: 0 0 6px;
-  font-size: 11.5px;
+  margin: 0 0 8px;
+  font-size: 12px;
   font-weight: bold;
   color: #003366;
   text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   border-bottom: 1px solid #d4e2ee;
-  padding-bottom: 3px;
+  padding-bottom: 4px;
 }
 
 .sec-num {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background: #005baa;
   color: #ffffff;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 .dossier-grid-two {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  font-size: 10.5px;
+  gap: 8px;
+  font-size: 11px;
 }
 
 .cell-label {
@@ -1349,28 +1518,34 @@
   font-weight: bold;
 }
 
+.dir-authority-line {
+  margin: 0 0 4px;
+  font-size: 11px;
+}
+
 .directive-quote-box {
   font-style: italic;
   background: #fffdeb;
   border: 1px solid #edd680;
-  padding: 5px 6px;
-  margin: 3px 0;
-  font-size: 10.5px;
+  border-left: 3px solid #cc6600;
+  padding: 6px 8px;
+  margin: 4px 0;
+  font-size: 11px;
   color: #4a2800;
 }
 
 .case-narrative-para {
-  margin: 0 0 6px;
-  font-size: 10.5px;
+  margin: 0 0 8px;
+  font-size: 11px;
   color: #333333;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .stage-callout {
   background: #eaf2f8;
   border: 1px solid #b8ccd8;
-  padding: 4px 6px;
-  font-size: 10.5px;
+  padding: 6px 8px;
+  font-size: 11px;
 }
 
 .stage-label {
@@ -1381,60 +1556,58 @@
 .evidence-summary-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .ev-stat-card {
   background: #ffffff;
   border: 1px solid #cbd9e6;
-  padding: 4px;
+  padding: 6px;
   text-align: center;
 }
 
 .stat-big {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   color: #005baa;
   display: block;
 }
 
 .stat-label {
-  font-size: 9.5px;
+  font-size: 10px;
   color: #555555;
 }
 
 .hash-verification-banner {
   background: #f0f4f8;
   border: 1px solid #c8d8e7;
-  padding: 4px 6px;
+  padding: 6px 8px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .hash-tag {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
   color: #003366;
 }
 
 .hash-code {
   font-family: monospace;
-  font-size: 9.5px;
+  font-size: 10px;
   color: #006600;
   word-break: break-all;
 }
 
 .hash-cert-note {
-  font-size: 9px;
+  font-size: 9.5px;
   color: #006600;
   font-weight: bold;
 }
 
-/* =============================================================
-   RIGHT PANE: RULED YELLOW LEGAL PAD NOTEPAD
-   ============================================================= */
+/* ================= 3. RIGHT COLUMN: INVESTIGATION NOTEPAD ================= */
 .modal-right-notepad {
   background-color: #fefcd7;
   background-image: repeating-linear-gradient(
@@ -1443,7 +1616,7 @@
     #e8e2be 24px
   );
   border-left: 2px solid #e57373;
-  padding: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
@@ -1454,8 +1627,8 @@
   align-items: center;
   justify-content: space-between;
   border-bottom: 2px solid #dcd59e;
-  padding-bottom: 6px;
-  margin-bottom: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
   background: rgba(254, 252, 215, 0.9);
 }
 
@@ -1466,36 +1639,36 @@
 }
 
 .notepad-icon {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .notepad-heading {
   margin: 0;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: bold;
   color: #3b3000;
 }
 
 .notepad-sub {
-  font-size: 9.5px;
+  font-size: 10px;
   color: #736200;
 }
 
 .notes-counter {
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
   background: #3b3000;
   color: #ffffdd;
-  padding: 1px 5px;
+  padding: 2px 6px;
   border-radius: 8px;
 }
 
 .notepad-toolbar {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   flex-wrap: wrap;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   background: rgba(254, 252, 215, 0.85);
   padding: 2px 0;
 }
@@ -1504,9 +1677,9 @@
   background: linear-gradient(to bottom, #ffffff 0%, #f0ebbe 100%);
   border: 1px solid #c9c08b;
   color: #3b3000;
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: bold;
-  padding: 2px 5px;
+  padding: 3px 6px;
   border-radius: 2px;
   cursor: pointer;
 }
@@ -1519,41 +1692,42 @@
 .note-meta-selectors {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .sel-group {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .sel-group label {
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: bold;
   color: #5c4d00;
 }
 
 .notepad-select {
-  padding: 3px 5px;
+  padding: 4px 6px;
   border: 1px solid #baa865;
   border-radius: 2px;
-  font-size: 10.5px;
+  font-size: 11px;
   background: #ffffff;
 }
 
 .notepad-textarea {
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 10px;
   border: 1.5px solid #baa865;
   border-radius: 2px;
-  font-size: 11.5px;
+  font-size: 12px;
   font-family: inherit;
   color: #222222;
   resize: vertical;
   background-color: #fffef2;
   line-height: 24px;
+  box-sizing: border-box;
 }
 
 .notepad-textarea:focus {
@@ -1565,16 +1739,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
-  gap: 6px;
+  margin-top: 6px;
+  gap: 8px;
 }
 
 .btn-note-clear {
   background: #ffffff;
   border: 1px solid #baa865;
   color: #665700;
-  font-size: 10px;
-  padding: 3px 6px;
+  font-size: 10.5px;
+  padding: 4px 8px;
   border-radius: 2px;
   cursor: pointer;
 }
@@ -1583,9 +1757,9 @@
   background: linear-gradient(to bottom, #0077cc 0%, #004488 100%);
   color: #ffffff;
   border: 1px solid #002244;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 5px 12px;
+  padding: 6px 14px;
   border-radius: 2px;
   cursor: pointer;
 }
@@ -1594,22 +1768,22 @@
   background: #e6ffe6;
   color: #006600;
   border: 1px solid #88cc88;
-  padding: 3px 6px;
+  padding: 4px 8px;
   border-radius: 2px;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: bold;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .saved-notes-section {
-  margin-top: 10px;
-  padding-top: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 2px solid #dcd59e;
 }
 
 .saved-notes-title {
-  margin: 0 0 6px;
-  font-size: 10.5px;
+  margin: 0 0 8px;
+  font-size: 11px;
   font-weight: bold;
   color: #3b3000;
   text-transform: uppercase;
@@ -1618,17 +1792,17 @@
 .no-notes-box {
   background: rgba(255, 255, 255, 0.6);
   border: 1px dashed #baa865;
-  padding: 8px;
+  padding: 10px;
   border-radius: 2px;
   text-align: center;
-  font-size: 10px;
+  font-size: 10.5px;
   color: #665700;
 }
 
 .notes-chronological-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .saved-note-card {
@@ -1636,7 +1810,7 @@
   border: 1px solid #baa865;
   border-left: 3px solid #005baa;
   border-radius: 2px;
-  padding: 6px 8px;
+  padding: 8px 10px;
 }
 
 .saved-note-card.priority-important {
@@ -1653,16 +1827,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
 }
 
 .note-author-stamp {
-  font-size: 10px;
+  font-size: 10.5px;
   color: #003366;
 }
 
 .note-time-text {
-  font-size: 9px;
+  font-size: 9.5px;
   color: #777777;
   margin-left: 4px;
 }
@@ -1670,22 +1844,22 @@
 .note-badges-row {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .note-tag-pill {
   background: #ede6b8;
   color: #3b3000;
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: bold;
-  padding: 1px 3px;
+  padding: 1px 4px;
   border-radius: 2px;
 }
 
 .note-prio-pill {
-  font-size: 8.5px;
+  font-size: 9px;
   font-weight: bold;
-  padding: 1px 3px;
+  padding: 1px 4px;
   border-radius: 2px;
   text-transform: uppercase;
 }
@@ -1709,7 +1883,7 @@
   background: transparent;
   border: none;
   color: #999999;
-  font-size: 10px;
+  font-size: 11px;
   cursor: pointer;
 }
 
@@ -1719,24 +1893,26 @@
 
 .note-card-body {
   margin: 0;
-  font-size: 10.5px;
+  font-size: 11px;
   color: #222222;
-  line-height: 1.35;
+  line-height: 1.4;
   white-space: pre-wrap;
 }
 
+/* Modal Bottom Status Bar with only "Done" */
 .dems-modal-footer {
   background: linear-gradient(to bottom, #f0f4f8 0%, #d8e4ee 100%);
   border-top: 1px solid #b8ccd8;
-  padding: 6px 14px;
+  padding: 8px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .audit-msg {
-  font-size: 9.5px;
+  font-size: 10px;
   color: #555555;
   font-family: monospace;
 }
@@ -1745,15 +1921,139 @@
   background: linear-gradient(to bottom, #0066cc 0%, #003388 100%);
   color: #ffffff;
   border: 1px solid #002266;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: bold;
-  padding: 4px 10px;
+  padding: 6px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.btn-modal-done:hover {
+  background: linear-gradient(to bottom, #0077ee 0%, #0044aa 100%);
+}
+
+/* -------------------------------------------------------------
+   10. PROFILE VIEWER & ACCOUNT SETTINGS MODAL
+   ------------------------------------------------------------- */
+.profile-viewer-modal {
+  background: #ffffff;
+  border: 2px solid #003366;
+  border-radius: 3px;
+  width: min(560px, 96%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.profile-modal-top {
+  background: linear-gradient(to bottom, #003366 0%, #001f3f 100%);
+  color: #ffffff;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #c5a059;
+}
+
+.p-modal-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.p-modal-icon {
+  font-size: 18px;
+}
+
+.p-modal-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.p-modal-sub {
+  font-size: 10px;
+  color: #dce7f2;
+}
+
+.profile-modal-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-info-strip {
+  background: #f4f8fb;
+  border: 1px solid #cbd9e6;
+  padding: 8px 10px;
+  border-radius: 2px;
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 0.8fr;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-lbl {
+  font-size: 9.5px;
+  color: #666666;
+}
+
+.info-txt {
+  color: #003366;
+}
+
+.badge-pno-view {
+  font-family: monospace;
+  font-weight: bold;
+  background: #ffaa00;
+  color: #001f3f;
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+  align-self: flex-start;
+}
+
+.profile-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.profile-fields-grid .span-full {
+  grid-column: 1 / -1;
+}
+
+.profile-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #ccd9e8;
+  margin-top: 4px;
+}
+
+.btn-profile-cancel {
+  background: #f0f4f8;
+  border: 1px solid #a6bfd5;
+  color: #333333;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 6px 14px;
   border-radius: 2px;
   cursor: pointer;
 }
 
 /* -------------------------------------------------------------
-   10. CLEAN MINIMAL OFFICIAL FOOTER
+   11. CLEAN MINIMAL OFFICIAL FOOTER
    ------------------------------------------------------------- */
 .gov-main-footer {
   background: linear-gradient(to bottom, #002244 0%, #001122 100%);
@@ -1795,18 +2095,34 @@
 }
 
 /* -------------------------------------------------------------
-   11. RESPONSIVE
+   12. RESPONSIVE
    ------------------------------------------------------------- */
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
+  .dems-modal-three-pane-body {
+    grid-template-columns: 240px 1fr 1fr;
+  }
+}
+
+@media (max-width: 960px) {
   .stakeholders-grid,
-  .dual-column-cases-wrap,
-  .dems-modal-dual-body {
+  .dual-column-cases-wrap {
     grid-template-columns: 1fr;
   }
 
-  .modal-left-case-details {
+  .dems-modal-three-pane-body {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .modal-left-cases-sidebar {
+    max-height: 200px;
     border-right: none;
-    border-bottom: 1px solid #b8ccd8;
+    border-bottom: 2px solid #b8ccd8;
+  }
+
+  .modal-middle-case-details {
+    border-right: none;
+    border-bottom: 2px solid #b8ccd8;
   }
 }
 
@@ -1815,8 +2131,13 @@
   .hero-flex,
   .footer-content,
   .search-bar-row,
-  .user-strip-flex {
+  .user-strip-flex,
+  .profile-name-row,
+  .profile-info-strip,
+  .profile-fields-grid {
     flex-direction: column;
     align-items: stretch;
+    grid-template-columns: 1fr;
   }
 }
+
