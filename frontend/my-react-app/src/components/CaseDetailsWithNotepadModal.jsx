@@ -1,51 +1,53 @@
 import React, { useState } from 'react'
 
 /**
- * Case Details with Integrated Right-Side Investigation Notepad
- * Features:
- * - Left side: Comprehensive Case Dossier (Registration, Legal Sections, Exhibits, Senior Directives, Hash Verification)
- * - Right side: Interactive Notepad allowing real-time note-taking, timestamps, priority tags, and saved notes history.
+ * Large Expanded Case Dossier with Left-Side Case Navigator Sidebar & Right-Side Investigation Notepad
  */
 export default function CaseDetailsWithNotepadModal({
   selectedCase,
+  allCases = [],
   currentUser,
   onClose,
+  onSelectCase,
   onAddNote,
   onDeleteNote,
 }) {
   if (!selectedCase) return null
 
-  // Active note input state
   const [noteText, setNoteText] = useState('')
-  const [notePriority, setNotePriority] = useState('Routine')
-  const [noteTag, setNoteTag] = useState('General Observation')
+  const [notePriority, setNotePriority] = useState('routine')
+  const [noteTag, setNoteTag] = useState('General Investigation')
   const [saveFeedback, setSaveFeedback] = useState(false)
+  const [sidebarFilter, setSidebarFilter] = useState('all')
 
-  // Insert automatic timestamp into note
   const handleInsertTimestamp = () => {
     const now = new Date()
-    const timeStr = `[${now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}] `
-    setNoteText((prev) => (prev ? `${prev}\n${timeStr}` : timeStr))
+    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    const dateStr = now.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+    const stamp = `[${dateStr} ${timeStr}] - `
+    setNoteText((prev) => stamp + prev)
   }
 
-  // Insert quick tag
-  const handleInsertTag = (tag) => {
-    setNoteText((prev) => (prev ? `${prev} [${tag}] ` : `[${tag}] `))
-  }
-
-  // Save current note
   const handleSaveNote = (e) => {
     e.preventDefault()
     if (!noteText.trim()) return
 
+    const now = new Date()
+    const dateStr = now.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
+    const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+
     const newNote = {
       id: `note-${Date.now()}`,
-      timestamp: new Date().toLocaleDateString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }) + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      author: currentUser ? currentUser.name : 'Authorized Officer',
+      timestamp: `${dateStr} ${timeStr}`,
+      author: currentUser?.name || 'Officer',
       priority: notePriority,
       tag: noteTag,
       text: noteText.trim(),
@@ -62,30 +64,97 @@ export default function CaseDetailsWithNotepadModal({
 
   const caseNotes = selectedCase.initialNotes || []
 
+  // Filter sidebar cases
+  const otherCases = allCases.filter((c) => {
+    if (sidebarFilter === 'own') return c.caseType === 'own'
+    if (sidebarFilter === 'delegated') return c.caseType === 'delegated'
+    return true
+  })
+
   return (
     <div className="dems-modal-backdrop" onClick={onClose}>
-      <div className="dems-modal-container" onClick={(e) => e.stopPropagation()}>
+      <div className="dems-expanded-workspace-modal" onClick={(e) => e.stopPropagation()}>
         {/* Modal Top Header Bar */}
         <div className="dems-modal-top-bar">
           <div className="modal-title-left">
             <span className="case-id-badge">{selectedCase.firNumber}</span>
             <span className="case-title-main">{selectedCase.title}</span>
+            <span className={`status-pill pill-${selectedCase.progressStatus.toLowerCase().replace(/\s+/g, '-')}`}>
+              {selectedCase.progressStatus}
+            </span>
           </div>
 
           <div className="modal-actions-right">
-            <span className={`status-pill pill-${selectedCase.progressStatus.toLowerCase().replace(/\s+/g, '-')}`}>
-              Status: {selectedCase.progressStatus}
-            </span>
-            <button type="button" className="btn-modal-close" onClick={onClose} title="Close Case & Notepad">
-              ✕ Close
+            <button type="button" className="btn-modal-done-top" onClick={onClose} title="Done">
+              Done
             </button>
           </div>
         </div>
 
-        {/* Modal Dual-Pane Body (Left: Case Details, Right: Notepad) */}
-        <div className="dems-modal-dual-body">
-          {/* ================= LEFT COLUMN: CASE DOSSIER ================= */}
-          <div className="modal-left-case-details">
+        {/* Modal 3-Pane Body: (Left: Other Cases Sidebar, Middle: Case Dossier, Right: Notepad) */}
+        <div className="dems-modal-three-pane-body">
+          {/* ================= 1. LEFT SIDEBAR: OTHER CASES NAVIGATOR ================= */}
+          <aside className="modal-left-cases-sidebar">
+            <div className="sidebar-header-bar">
+              <span className="sidebar-title">📁 Case Navigator</span>
+              <div className="sidebar-filter-tabs">
+                <button
+                  type="button"
+                  className={`btn-sb-tab ${sidebarFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setSidebarFilter('all')}
+                >
+                  All ({allCases.length})
+                </button>
+                <button
+                  type="button"
+                  className={`btn-sb-tab ${sidebarFilter === 'own' ? 'active' : ''}`}
+                  onClick={() => setSidebarFilter('own')}
+                >
+                  Self ({allCases.filter((c) => c.caseType === 'own').length})
+                </button>
+                <button
+                  type="button"
+                  className={`btn-sb-tab ${sidebarFilter === 'delegated' ? 'active' : ''}`}
+                  onClick={() => setSidebarFilter('delegated')}
+                >
+                  Delegated ({allCases.filter((c) => c.caseType === 'delegated').length})
+                </button>
+              </div>
+            </div>
+
+            <div className="sidebar-cases-list">
+              {otherCases.map((c) => {
+                const isCurrent = c.id === selectedCase.id
+                return (
+                  <div
+                    key={c.id}
+                    className={`sidebar-case-item ${isCurrent ? 'active-case-item' : ''} ${
+                      c.caseType === 'delegated' ? 'sb-del-item' : ''
+                    }`}
+                    onClick={() => {
+                      if (onSelectCase && !isCurrent) {
+                        onSelectCase(c)
+                      }
+                    }}
+                  >
+                    <div className="sb-item-top">
+                      <span className="sb-fir-tag">{c.firNumber}</span>
+                      <span className={`sb-status-pill status-${c.progressStatus.toLowerCase().replace(/\s+/g, '-')}`}>
+                        {c.progressStatus}
+                      </span>
+                    </div>
+                    <div className="sb-case-title">{c.title}</div>
+                    <div className="sb-case-type-meta">
+                      {c.caseType === 'own' ? '👮 Self-Assigned' : `⚡ By: ${c.delegatedBy || 'Senior'}`}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </aside>
+
+          {/* ================= 2. MIDDLE COLUMN: CASE DOSSIER ================= */}
+          <div className="modal-middle-case-details">
             {/* Section 1: Official Registration & Legal Sections */}
             <div className="dossier-box">
               <h4 className="dossier-sec-title">
@@ -118,7 +187,7 @@ export default function CaseDetailsWithNotepadModal({
                   <span className="sec-num">2</span> Senior Authority Mandate & Directives
                 </h4>
                 <div className="directive-details-row">
-                  <p>
+                  <p className="dir-authority-line">
                     <strong>Issued By:</strong> {selectedCase.delegatedBy} (
                     {selectedCase.seniorDesignation})
                   </p>
@@ -147,7 +216,7 @@ export default function CaseDetailsWithNotepadModal({
               </div>
             </div>
 
-            {/* Section 4: Digital Evidence Repository & Chain of Custody */}
+            {/* Section 4: Digital Evidence Repository & Hash Integrity */}
             <div className="dossier-box">
               <h4 className="dossier-sec-title">
                 <span className="sec-num">{selectedCase.caseType === 'delegated' ? '4' : '3'}</span> Digital Evidence Repository & Hash Integrity
@@ -173,80 +242,72 @@ export default function CaseDetailsWithNotepadModal({
             </div>
           </div>
 
-          {/* ================= RIGHT COLUMN: INVESTIGATION NOTEPAD ================= */}
+          {/* ================= 3. RIGHT COLUMN: INVESTIGATION NOTEPAD ================= */}
           <div className="modal-right-notepad">
             <div className="notepad-header-strip">
               <div className="np-title-row">
                 <span className="notepad-icon">📝</span>
                 <div>
-                  <h3 className="notepad-heading">Investigation Notepad</h3>
-                  <span className="notepad-sub">Active Notes for {selectedCase.firNumber}</span>
+                  <h4 className="notepad-heading">Investigation Notepad</h4>
+                  <span className="notepad-sub">Official IO Field Notes & Observations</span>
                 </div>
               </div>
-              <span className="notes-counter">{caseNotes.length} Saved Notes</span>
+              <span className="notes-counter">{caseNotes.length} Notes Saved</span>
             </div>
 
-            {/* Quick Toolbar */}
-            <div className="notepad-toolbar">
-              <button
-                type="button"
-                className="btn-tool-tag"
-                onClick={handleInsertTimestamp}
-                title="Insert current date & time"
-              >
-                ⏱ Insert Timestamp
-              </button>
-              <button
-                type="button"
-                className="btn-tool-tag"
-                onClick={() => handleInsertTag('WITNESS')}
-              >
-                + Witness
-              </button>
-              <button
-                type="button"
-                className="btn-tool-tag"
-                onClick={() => handleInsertTag('EVIDENCE')}
-              >
-                + Evidence
-              </button>
-              <button
-                type="button"
-                className="btn-tool-tag"
-                onClick={() => handleInsertTag('COURT')}
-              >
-                + Court
-              </button>
-            </div>
+            {/* Note Entry Form */}
+            <form className="notepad-form" onSubmit={handleSaveNote}>
+              <div className="notepad-toolbar">
+                <button
+                  type="button"
+                  className="btn-tool-tag"
+                  onClick={handleInsertTimestamp}
+                  title="Insert current date & time stamp"
+                >
+                  🕒 Insert Timestamp
+                </button>
+                <button
+                  type="button"
+                  className="btn-tool-tag"
+                  onClick={() => setNoteText((prev) => prev + '\n- [ ] ')}
+                >
+                  ☑ Checklist Item
+                </button>
+                <button
+                  type="button"
+                  className="btn-tool-tag"
+                  onClick={() => setNoteText((prev) => prev + '\n[WITNESS STATEMENT]: ')}
+                >
+                  🗣 Witness
+                </button>
+              </div>
 
-            {/* Note Editor Form */}
-            <form onSubmit={handleSaveNote} className="notepad-input-form">
               <div className="note-meta-selectors">
                 <div className="sel-group">
-                  <label>Note Type:</label>
+                  <label>Note Category:</label>
                   <select
+                    className="notepad-select"
                     value={noteTag}
                     onChange={(e) => setNoteTag(e.target.value)}
-                    className="notepad-select"
                   >
-                    <option value="General Observation">General Observation</option>
-                    <option value="Witness Statement">Witness Statement</option>
-                    <option value="Forensic Observation">Forensic Observation</option>
-                    <option value="Suspect Alibi">Suspect Alibi</option>
-                    <option value="Court Proceeding">Court Proceeding</option>
+                    <option value="General Investigation">General Investigation</option>
+                    <option value="Spot Inspection Memo">Spot Inspection Memo</option>
+                    <option value="Witness Interrogation">Witness Interrogation</option>
+                    <option value="Forensic Analysis">Forensic Analysis</option>
+                    <option value="Senior Directive Compliance">Senior Directive Compliance</option>
                   </select>
                 </div>
 
                 <div className="sel-group">
-                  <label>Priority:</label>
+                  <label>Priority Tag:</label>
                   <select
+                    className="notepad-select"
                     value={notePriority}
                     onChange={(e) => setNotePriority(e.target.value)}
-                    className="notepad-select"
                   >
-                    <option value="Routine">Routine</option>
-                    <option value="Important">Important</option>
-                    <option value="Confidential">Confidential</option>
+                    <option value="routine">Routine</option>
+                    <option value="important">Important (Action Needed)</option>
+                    <option value="confidential">Confidential (IO Only)</option>
                   </select>
                 </div>
               </div>
@@ -254,9 +315,10 @@ export default function CaseDetailsWithNotepadModal({
               <textarea
                 className="notepad-textarea"
                 rows={5}
-                placeholder="Type your case notes, spot observations, witness interview points, or forensic remarks here..."
+                placeholder="Type your official observations, case diary reminders, or witness quotes here..."
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
+                required
               />
 
               <div className="notepad-form-actions">
@@ -264,54 +326,54 @@ export default function CaseDetailsWithNotepadModal({
                   type="button"
                   className="btn-note-clear"
                   onClick={() => setNoteText('')}
-                  disabled={!noteText}
                 >
-                  Clear Editor
+                  Clear Pad
                 </button>
-                <button
-                  type="submit"
-                  className="btn-note-save"
-                  disabled={!noteText.trim()}
-                >
-                  💾 Save Note to Case Dossier
+                <button type="submit" className="btn-note-save">
+                  💾 Save Note to Dossier
                 </button>
               </div>
 
               {saveFeedback && (
                 <div className="note-save-alert">
-                  ✓ Note successfully recorded and timestamped in case dossier!
+                  ✓ Note saved securely to case record!
                 </div>
               )}
             </form>
 
-            {/* Saved Notes History List */}
+            {/* Saved Case Notes History */}
             <div className="saved-notes-section">
-              <h4 className="saved-notes-title">Recorded Case Notes History</h4>
+              <h5 className="saved-notes-title">Recorded Case Notes ({caseNotes.length})</h5>
 
               {caseNotes.length === 0 ? (
                 <div className="no-notes-box">
-                  <span>No notes recorded yet for this case. Use the editor above to add your first observation.</span>
+                  No notes recorded yet for this case. Use the pad above to add observations.
                 </div>
               ) : (
                 <div className="notes-chronological-list">
                   {caseNotes.map((note) => (
-                    <div key={note.id} className={`saved-note-card priority-${(note.priority || 'routine').toLowerCase()}`}>
+                    <div
+                      key={note.id}
+                      className={`saved-note-card priority-${note.priority || 'routine'}`}
+                    >
                       <div className="note-card-header">
-                        <div className="note-author-stamp">
-                          <strong>{note.author}</strong>
-                          <span className="note-time-text">{note.timestamp}</span>
+                        <div>
+                          <strong className="note-author-stamp">✍ {note.author || 'IO'}</strong>
+                          <span className="note-time-text">({note.timestamp})</span>
                         </div>
                         <div className="note-badges-row">
-                          {note.tag && <span className="note-tag-pill">{note.tag}</span>}
-                          <span className={`note-prio-pill prio-${(note.priority || 'routine').toLowerCase()}`}>
-                            {note.priority || 'Routine'}
-                          </span>
+                          <span className="note-tag-pill">{note.tag || 'General'}</span>
+                          {note.priority && note.priority !== 'routine' && (
+                            <span className={`note-prio-pill prio-${note.priority}`}>
+                              {note.priority}
+                            </span>
+                          )}
                           {onDeleteNote && (
                             <button
                               type="button"
                               className="btn-del-note"
-                              onClick={() => onDeleteNote(selectedCase.id, note.id)}
                               title="Delete note"
+                              onClick={() => onDeleteNote(selectedCase.id, note.id)}
                             >
                               ✕
                             </button>
@@ -327,17 +389,16 @@ export default function CaseDetailsWithNotepadModal({
           </div>
         </div>
 
-        {/* Modal Bottom Status Bar */}
+        {/* Modal Bottom Status Bar with only "Done" */}
         <div className="dems-modal-footer">
           <span className="audit-msg">
             Audited Session: {currentUser?.name || 'Officer'} ({currentUser?.pno || 'DEMO-USER'}) • Tamper-Evident Audit Log Active
           </span>
           <button type="button" className="btn-modal-done" onClick={onClose}>
-            Done / Close Case
+            Done
           </button>
         </div>
       </div>
     </div>
   )
 }
-
