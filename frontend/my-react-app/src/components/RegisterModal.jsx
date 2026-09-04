@@ -6,8 +6,6 @@ import { organizations } from '../data/demsData'
  * Centered white card on blurred Secretariat backdrop with REGISTER 👤 header
  */
 export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
-  if (!isOpen) return null
-
   const [selectedOrgId, setSelectedOrgId] = useState('police')
   const currentOrg = organizations.find((o) => o.id === selectedOrgId) || organizations[0]
   const [selectedRoleId, setSelectedRoleId] = useState(currentOrg.roles[0]?.id || '')
@@ -29,6 +27,8 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
       setSelectedRoleId(currentOrg.roles[0].id)
     }
   }, [selectedOrgId])
+
+  if (!isOpen) return null
 
   const handleRegisterSubmit = (e) => {
     e.preventDefault()

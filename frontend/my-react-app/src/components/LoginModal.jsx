@@ -7,13 +7,13 @@ import { organizations } from '../data/demsData'
  * Centered white card on blurred Secretariat backdrop with LOGIN 🔑 header
  */
 export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
-  if (!isOpen) return null
-
   const navigate = useNavigate()
   const [username, setUsername] = useState('sho_rajesh')
   const [password, setPassword] = useState('Password@123')
   const [rememberMe, setRememberMe] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
+
+  if (!isOpen) return null
 
   const handleLoginSubmit = (e) => {
     e.preventDefault()

@@ -5,15 +5,15 @@ import React, { useState } from 'react'
  * Early 2010s styled dialog for viewing and updating username, email, name, and password
  */
 export default function ProfileViewerModal({ isOpen, currentUser, onClose, onUpdateUser }) {
-  if (!isOpen || !currentUser) return null
-
-  const [username, setUsername] = useState(currentUser.username || '')
-  const [name, setName] = useState(currentUser.name || '')
-  const [email, setEmail] = useState(currentUser.email || '')
+  const [username, setUsername] = useState(currentUser?.username || '')
+  const [name, setName] = useState(currentUser?.name || '')
+  const [email, setEmail] = useState(currentUser?.email || '')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [successMsg, setSuccessMsg] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
+
+  if (!isOpen || !currentUser) return null
 
   const handleSave = (e) => {
     e.preventDefault()
