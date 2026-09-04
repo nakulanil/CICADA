@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import CDACHeader from '../components/CDACHeader'
-import CDACFooter from '../components/CDACFooter'
-import { DEMSBadge } from '../components/DEMSLogo'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import { organizations } from '../data/demsData'
+import secretariatHeroImg from '../assets/secretariat_hero.jpg'
 
 /**
- * Login Page
- * Credentials required: username, password (no Station LAN).
+ * Dedicated Login Page (Figma Page 1 Frame 3)
  */
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -15,7 +14,8 @@ export default function LoginPage() {
 
   const prefillUsername = searchParams.get('username') || ''
   const [username, setUsername] = useState(prefillUsername || 'sho_rajesh')
-  const [password, setPassword] = useState('••••••••••••')
+  const [password, setPassword] = useState('Password@123')
+  const [rememberMe, setRememberMe] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
 
   const handleLoginSubmit = (e) => {
@@ -29,7 +29,6 @@ export default function LoginPage() {
 
     let loggedUser = null
 
-    // Check in default organizations
     for (const org of organizations) {
       const match = org.roles.find(
         (r) =>
@@ -53,7 +52,6 @@ export default function LoginPage() {
       }
     }
 
-    // Check in localStorage
     if (!loggedUser) {
       try {
         const regUsers = JSON.parse(localStorage.getItem('dems_registered_users') || '[]')
@@ -70,7 +68,6 @@ export default function LoginPage() {
       }
     }
 
-    // Fallback
     if (!loggedUser) {
       loggedUser = {
         username: username.trim(),
@@ -90,7 +87,7 @@ export default function LoginPage() {
     navigate('/dashboard')
   }
 
-  const handleQuickSelectDemo = (orgId, roleId) => {
+  const handleQuickDemo = (orgId, roleId) => {
     const org = organizations.find((o) => o.id === orgId)
     const role = org?.roles.find((r) => r.id === roleId)
     if (role) {
@@ -100,25 +97,33 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="app-page-wrapper">
-      <CDACHeader activePage="login" />
+    <div className="auth-page-full-wrapper">
+      <Navbar activePage="login" />
 
-      <main className="site-container page-content-box">
-        <div className="login-panel-shell">
-          <div className="panel-header-bar login-header-bar">
-            <DEMSBadge size={40} />
-            <div>
-              <h1 className="panel-main-title">Officer Login</h1>
-              <span className="panel-subtitle">Sign in with your username and password</span>
+      <main
+        className="auth-backdrop-stage"
+        style={{
+          backgroundImage: `linear-gradient(180deg, rgba(10, 37, 64, 0.85) 0%, rgba(14, 51, 102, 0.88) 100%), url(${secretariatHeroImg})`,
+        }}
+      >
+        <div className="auth-modal-card login-standalone-card">
+          <div className="auth-modal-header navy-header">
+            <div className="auth-title-left">
+              <span className="auth-key-icon">🔑</span>
+              <span className="auth-modal-title">OFFICER LOGIN</span>
             </div>
           </div>
 
-          {errorMsg && <div className="msg-box msg-error">{errorMsg}</div>}
+          <form className="auth-modal-body" onSubmit={handleLoginSubmit}>
+            <p className="auth-welcome-sub">
+              Sign in with your official credentials to access the secure evidence vault.
+            </p>
 
-          <form className="clean-form" onSubmit={handleLoginSubmit}>
+            {errorMsg && <div className="msg-box msg-error">{errorMsg}</div>}
+
             <div className="form-group">
               <label htmlFor="login-username" className="field-label">
-                Username / Email: <span className="req">*</span>
+                Username or Official Email: <span className="req">*</span>
               </label>
               <input
                 id="login-username"
@@ -147,63 +152,68 @@ export default function LoginPage() {
               />
             </div>
 
-            <button type="submit" className="btn-submit-action btn-block">
-              Sign In ➔
-            </button>
-          </form>
-
-          {/* Quick Demo Test Buttons */}
-          <div className="quick-demo-box">
-            <span className="quick-demo-label">Quick Test Login Profiles:</span>
-            <div className="quick-demo-buttons">
-              <button
-                type="button"
-                className="btn-demo-tag"
-                onClick={() => handleQuickSelectDemo('police', 'police_sho')}
-              >
-                👮 Police: SHO Rajesh
-              </button>
-              <button
-                type="button"
-                className="btn-demo-tag"
-                onClick={() => handleQuickSelectDemo('police', 'police_si')}
-              >
-                🔍 Police: SI Vikramaditya (IO)
-              </button>
-              <button
-                type="button"
-                className="btn-demo-tag"
-                onClick={() => handleQuickSelectDemo('forensics', 'fsl_digital')}
-              >
-                🔬 Forensics: Prateek (FSL)
-              </button>
-              <button
-                type="button"
-                className="btn-demo-tag"
-                onClick={() => handleQuickSelectDemo('prosecution', 'pro_cpp')}
-              >
-                ⚖️ Prosecution: Adv. Bhardwaj
-              </button>
-              <button
-                type="button"
-                className="btn-demo-tag"
-                onClick={() => handleQuickSelectDemo('court', 'court_judge')}
-              >
-                🏛️ Court: Justice Shastri
-              </button>
+            <div className="auth-remember-row">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span>Remember session on this device</span>
+              </label>
+              <span className="secure-badge-note">🔒 256-bit TLS</span>
             </div>
-          </div>
 
-          <div className="login-bottom-links">
-            <span>Don't have an account?</span>
-            <Link to="/register" className="link-register">
-              + Register here
-            </Link>
-          </div>
+            <button type="submit" className="btn-animated btn-auth-submit">
+              Sign In to DEMS Gateway ➔
+            </button>
+
+            {/* Quick Demo Test Profiles */}
+            <div className="quick-demo-container">
+              <span className="quick-demo-title">⚡ Quick Test Login Profiles:</span>
+              <div className="demo-pills-row">
+                <button
+                  type="button"
+                  className="btn-demo-pill"
+                  onClick={() => handleQuickDemo('police', 'police_sho')}
+                >
+                  👮 Police: SHO Rajesh
+                </button>
+                <button
+                  type="button"
+                  className="btn-demo-pill"
+                  onClick={() => handleQuickDemo('police', 'police_si')}
+                >
+                  🔍 Police: SI Vikramaditya
+                </button>
+                <button
+                  type="button"
+                  className="btn-demo-pill"
+                  onClick={() => handleQuickDemo('forensics', 'fsl_digital')}
+                >
+                  🔬 Forensics: Prateek
+                </button>
+                <button
+                  type="button"
+                  className="btn-demo-pill"
+                  onClick={() => handleQuickDemo('court', 'court_judge')}
+                >
+                  🏛️ Court: Justice Shastri
+                </button>
+              </div>
+            </div>
+
+            <div className="auth-bottom-switch">
+              <span>New officer or department onboarding?</span>
+              <Link to="/register" className="link-btn-switch">
+                + Register Official Account
+              </Link>
+            </div>
+          </form>
         </div>
       </main>
 
-      <CDACFooter />
+      <Footer />
     </div>
   )
 }
