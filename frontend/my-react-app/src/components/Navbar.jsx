@@ -11,11 +11,8 @@ import NationalEmblem from './NationalEmblem'
 export default function Navbar({
   activePage = 'home',
   onNavClick,
-  onOpenLogin,
-  onOpenRegister,
 }) {
   const navigate = useNavigate()
-  const isDashboard = activePage === 'dashboard'
 
   const handleScrollTo = (sectionId) => {
     if (onNavClick) {
@@ -68,25 +65,6 @@ export default function Navbar({
             </button>
           </div>
 
-          {/* Action Buttons (Hover & Click Animated) */}
-          {!isDashboard && (
-            <div className="nav-action-buttons">
-              <button
-                type="button"
-                className="btn-animated btn-nav-register"
-                onClick={() => (onOpenRegister ? onOpenRegister() : navigate('/register'))}
-              >
-                Register
-              </button>
-              <button
-                type="button"
-                className="btn-animated btn-nav-login"
-                onClick={() => (onOpenLogin ? onOpenLogin() : navigate('/login'))}
-              >
-                Login
-              </button>
-            </div>
-          )}
         </div>
       </nav>
     </header>
