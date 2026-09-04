@@ -2569,3 +2569,276 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* -------------------------------------------------------------
+   19. REFERENCE FRAME POLISH
+   ------------------------------------------------------------- */
+.hero-architectural-section {
+  min-height: 300px;
+  padding: 58px 0 82px;
+  background-position: center 38%;
+}
+
+.hero-main-headline {
+  max-width: 560px;
+  font-size: clamp(26px, 3.4vw, 38px);
+  line-height: 1.12;
+}
+
+.hero-sub-text {
+  max-width: 520px;
+  font-size: 13px;
+}
+
+.btn-hero-action {
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 20px;
+}
+
+.btn-hero-reg {
+  background: var(--color-ochre-gold);
+}
+
+.btn-hero-log {
+  background: var(--color-navy-primary);
+}
+
+.feature-pillar-item {
+  padding: 16px 14px;
+  text-align: center;
+}
+
+.pillar-icon-box {
+  margin-bottom: 4px;
+}
+
+.pillar-title {
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.pillar-desc {
+  font-size: 10px;
+}
+
+.section-header-block {
+  margin-bottom: 22px;
+}
+
+.section-heading-ochre {
+  font-size: 22px;
+}
+
+.section-lead-paragraph,
+.section-sub-text,
+.pillar-paragraph,
+.contact-card-text {
+  font-size: 12px;
+}
+
+.auth-modal-backdrop,
+.dems-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(5, 18, 31, 0.66);
+  backdrop-filter: blur(3px);
+}
+
+.auth-figma-card {
+  width: min(420px, 94vw);
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #b8c2cc;
+  border-radius: 5px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.38);
+  animation: modalFadeScaleIn 0.22s ease-out forwards;
+}
+
+.register-figma-card {
+  width: min(590px, 94vw);
+}
+
+.auth-figma-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid #d4d9de;
+}
+
+.auth-figma-title {
+  margin: 0;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.45px;
+}
+
+.auth-figma-icon {
+  font-size: 11px;
+}
+
+.btn-figma-close {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.auth-figma-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 18px 16px;
+}
+
+.figma-input-wrapper,
+.figma-grid-two {
+  width: 100%;
+}
+
+.figma-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.figma-input-gray {
+  width: 100%;
+  min-height: 27px;
+  padding: 5px 8px;
+  border: 1px solid #c7cdd3;
+  border-radius: 2px;
+  background: #f0f0f0;
+  color: #374151;
+  font-size: 10px;
+}
+
+.figma-input-gray:focus {
+  outline: 1px solid var(--color-navy-primary);
+  background: #ffffff;
+}
+
+.figma-auth-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #64748b;
+  font-size: 9px;
+}
+
+.figma-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.figma-checkbox-label input {
+  width: 11px;
+  height: 11px;
+  margin: 0;
+}
+
+.figma-secure-tag {
+  color: #047857;
+  font-weight: 700;
+}
+
+.btn-figma-submit {
+  align-self: center;
+  min-width: 92px;
+  padding: 6px 16px;
+  border: 1px solid #0a2540;
+  border-radius: 2px;
+  background: var(--color-navy-primary);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.figma-auth-footer-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #64748b;
+  font-size: 9px;
+}
+
+.btn-figma-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-navy-primary);
+  cursor: pointer;
+  font-size: inherit;
+  font-weight: 700;
+}
+
+.msg-box {
+  padding: 6px 8px;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.msg-error {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.msg-success {
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+}
+
+.dems-expanded-workspace-modal {
+  width: min(1180px, 96vw);
+  height: min(690px, 92vh);
+}
+
+.profile-viewer-modal {
+  width: min(560px, 94vw);
+}
+
+@media (max-width: 768px) {
+  .site-container,
+  .dash-full-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .hero-architectural-section {
+    padding-top: 44px;
+  }
+
+  .auth-figma-form {
+    padding: 12px;
+  }
+
+  .figma-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .figma-auth-options-row,
+  .figma-auth-footer-switch {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

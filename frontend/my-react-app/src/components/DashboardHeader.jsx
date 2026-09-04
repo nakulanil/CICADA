@@ -19,33 +19,8 @@ export default function DashboardHeader({ currentUser, onOpenProfile, onLogout }
           </div>
         </Link>
 
-        {/* Center: Secure Session Indicator */}
-        <div className="top-secure-status">
-          <span className="lock-icon">🔒</span>
-          <span className="secure-text">RESTRICTED RECORD VAULT</span>
-        </div>
-
-        {/* Right: Officer Profile Pill & Signout */}
+        {/* Right: Signout */}
         <div className="top-user-actions-group">
-          <button
-            type="button"
-            className="btn-animated top-user-profile-pill"
-            onClick={onOpenProfile}
-            title="Click to view/edit officer profile"
-          >
-            <span className="top-user-avatar">
-              {currentUser?.name
-                ? currentUser.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .slice(0, 2)
-                    .join('')
-                : 'OF'}
-            </span>
-            <span className="top-user-name">{currentUser?.name || 'Officer'}</span>
-            <span className="profile-edit-icon">⚙️</span>
-          </button>
-
           <button
             type="button"
             className="btn-animated btn-top-logout"

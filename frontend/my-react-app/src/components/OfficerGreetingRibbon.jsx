@@ -35,14 +35,6 @@ export default function OfficerGreetingRibbon({
               <h1 className="ribbon-welcome-title">
                 Welcome! <span className="officer-highlight-name">{currentUser?.name || 'Jane Doe'}</span>
               </h1>
-              <button
-                type="button"
-                className="btn-animated btn-profile-quick-edit"
-                onClick={onOpenProfile}
-                title="Edit Username, Email, Name or Password"
-              >
-                👤 Edit Profile / Credentials
-              </button>
             </div>
 
             <div className="ribbon-sub-designation">
