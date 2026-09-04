@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 /**
  * Large Expanded Case Dossier with Left-Side Case Navigator Sidebar & Right-Side Investigation Notepad
+ * (Figma Page 1 Frame 6 Specification)
  */
 export default function CaseDetailsWithNotepadModal({
   selectedCase,
@@ -85,13 +86,13 @@ export default function CaseDetailsWithNotepadModal({
           </div>
 
           <div className="modal-actions-right">
-            <button type="button" className="btn-modal-done-top" onClick={onClose} title="Done">
+            <button type="button" className="btn-animated btn-modal-done-top" onClick={onClose} title="Done">
               Done
             </button>
           </div>
         </div>
 
-        {/* Modal 3-Pane Body: (Left: Other Cases Sidebar, Middle: Case Dossier, Right: Notepad) */}
+        {/* Modal 3-Pane Body: (1. Left: Cases Sidebar, 2. Middle: Case Dossier, 3. Right: Notepad) */}
         <div className="dems-modal-three-pane-body">
           {/* ================= 1. LEFT SIDEBAR: OTHER CASES NAVIGATOR ================= */}
           <aside className="modal-left-cases-sidebar">
@@ -260,7 +261,7 @@ export default function CaseDetailsWithNotepadModal({
               <div className="notepad-toolbar">
                 <button
                   type="button"
-                  className="btn-tool-tag"
+                  className="btn-animated btn-tool-tag"
                   onClick={handleInsertTimestamp}
                   title="Insert current date & time stamp"
                 >
@@ -268,14 +269,14 @@ export default function CaseDetailsWithNotepadModal({
                 </button>
                 <button
                   type="button"
-                  className="btn-tool-tag"
+                  className="btn-animated btn-tool-tag"
                   onClick={() => setNoteText((prev) => prev + '\n- [ ] ')}
                 >
                   ☑ Checklist Item
                 </button>
                 <button
                   type="button"
-                  className="btn-tool-tag"
+                  className="btn-animated btn-tool-tag"
                   onClick={() => setNoteText((prev) => prev + '\n[WITNESS STATEMENT]: ')}
                 >
                   🗣 Witness
@@ -324,12 +325,12 @@ export default function CaseDetailsWithNotepadModal({
               <div className="notepad-form-actions">
                 <button
                   type="button"
-                  className="btn-note-clear"
+                  className="btn-animated btn-note-clear"
                   onClick={() => setNoteText('')}
                 >
                   Clear Pad
                 </button>
-                <button type="submit" className="btn-note-save">
+                <button type="submit" className="btn-animated btn-note-save">
                   💾 Save Note to Dossier
                 </button>
               </div>
@@ -394,7 +395,7 @@ export default function CaseDetailsWithNotepadModal({
           <span className="audit-msg">
             Audited Session: {currentUser?.name || 'Officer'} ({currentUser?.pno || 'DEMO-USER'}) • Tamper-Evident Audit Log Active
           </span>
-          <button type="button" className="btn-modal-done" onClick={onClose}>
+          <button type="button" className="btn-animated btn-modal-done" onClick={onClose}>
             Done
           </button>
         </div>

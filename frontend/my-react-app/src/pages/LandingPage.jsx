@@ -1,96 +1,97 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-import CDACHeader from '../components/CDACHeader'
-import CDACFooter from '../components/CDACFooter'
-import { DEMSBadge } from '../components/DEMSLogo'
-import { organizations } from '../data/demsData'
+import React, { useState } from 'react'
+import Navbar from '../components/Navbar'
+import HeroSection from '../components/HeroSection'
+import FeatureRibbon from '../components/FeatureRibbon'
+import AdvisoryBar from '../components/AdvisoryBar'
+import AboutSection from '../components/AboutSection'
+import WhatWeDoSection from '../components/WhatWeDoSection'
+import ContactSection from '../components/ContactSection'
+import Footer from '../components/Footer'
+import LoginModal from '../components/LoginModal'
+import RegisterModal from '../components/RegisterModal'
 
 /**
- * Clean Early 2010s Landing Page
- * Direct, uncluttered, focused on Registration and Login
+ * DEMS Landing Page (Figma Page 1 Specification)
+ * Complete implementation of Frame 1 & Frame 2 with interactive auth modals (Frames 3 & 4)
  */
 export default function LandingPage() {
-  const navigate = useNavigate()
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState('home')
+
+  const handleNavClick = (sectionId) => {
+    setActiveSection(sectionId.replace('-section', ''))
+    const elem = document.getElementById(sectionId)
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   return (
-    <div className="app-page-wrapper">
-      <CDACHeader activePage="home" />
+    <div className="dems-landing-page-root">
+      {/* 1. Universal Top Header & Navbar */}
+      <Navbar
+        activePage={activeSection}
+        onNavClick={handleNavClick}
+        onOpenLogin={() => {
+          setIsRegisterOpen(false)
+          setIsLoginOpen(true)
+        }}
+        onOpenRegister={() => {
+          setIsLoginOpen(false)
+          setIsRegisterOpen(true)
+        }}
+      />
 
-      {/* Hero Section */}
-      <section className="hero-banner-section">
-        <div className="site-container hero-flex">
-          <div className="hero-left-text">
-            <div className="official-ref-badge">OFFICIAL RECORD PORTAL</div>
-            <h1 className="hero-title">
-              Digital Evidence Management System <span className="highlight-gold">(DEMS)</span>
-            </h1>
-            <p className="hero-desc">
-              Secure case filing, digital evidence vault, and inter-agency coordination for Law Enforcement, Forensics, Prosecution, and Courts.
-            </p>
+      {/* 2. Hero Section with Secretariat Background (Frame 1) */}
+      <HeroSection
+        onOpenLogin={() => {
+          setIsRegisterOpen(false)
+          setIsLoginOpen(true)
+        }}
+        onOpenRegister={() => {
+          setIsLoginOpen(false)
+          setIsRegisterOpen(true)
+        }}
+      />
 
-            <div className="hero-btn-row">
-              <button
-                type="button"
-                className="btn-primary-action"
-                onClick={() => navigate('/login')}
-              >
-                Officer Login ➔
-              </button>
-              <button
-                type="button"
-                className="btn-secondary-action"
-                onClick={() => navigate('/register')}
-              >
-                + New Registration
-              </button>
-            </div>
-          </div>
+      {/* 3. Floating 4-Feature Card Ribbon (Frame 1) */}
+      <FeatureRibbon />
 
-          <div className="hero-right-badge">
-            <DEMSBadge size={72} />
-            <span className="badge-caption">SECURE DIGITAL VAULT</span>
-          </div>
-        </div>
-      </section>
+      {/* 4. Golden Ochre Advisory Strip (Frame 1) */}
+      <AdvisoryBar />
 
-      {/* Stakeholder Selection Grid */}
-      <main className="site-container content-section">
-        <div className="section-head-bar">
-          <h2 className="section-title">Select Your Organization to Register</h2>
-          <span className="section-help">Choose your department to register your official role and access credentials</span>
-        </div>
+      {/* 5. ABOUT US & Dual Navy Cards Section (Frame 2) */}
+      <AboutSection />
 
-        <div className="stakeholders-grid">
-          {organizations.map((org) => (
-            <div key={org.id} className="org-portal-card">
-              <div className="org-card-title-bar">
-                <span className="org-code-tag">{org.badgePrefix}</span>
-                <h3 className="org-card-title">{org.name}</h3>
-              </div>
-              <p className="org-card-summary">{org.description}</p>
+      {/* 6. "What we do" 4-Pillars Section (Frame 2) */}
+      <WhatWeDoSection />
 
-              <div className="org-card-roles">
-                <strong>Key Roles:</strong>
-                <ul>
-                  {org.roles.slice(0, 3).map((r) => (
-                    <li key={r.id}>• {r.name}</li>
-                  ))}
-                </ul>
-              </div>
+      {/* 7. CONTACT US Section (Frame 2) */}
+      <ContactSection />
 
-              <button
-                type="button"
-                className="btn-card-register"
-                onClick={() => navigate(`/register?org=${org.id}`)}
-              >
-                Register as {org.shortName} →
-              </button>
-            </div>
-          ))}
-        </div>
-      </main>
+      {/* 8. Official Government Footer */}
+      <Footer />
 
-      <CDACFooter />
+      {/* Frame 3: Officer Login Modal */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSwitchToRegister={() => {
+          setIsLoginOpen(false)
+          setIsRegisterOpen(true)
+        }}
+      />
+
+      {/* Frame 4: Officer Registration Modal */}
+      <RegisterModal
+        isOpen={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onSwitchToLogin={() => {
+          setIsRegisterOpen(false)
+          setIsLoginOpen(true)
+        }}
+      />
     </div>
   )
 }

@@ -1,19 +1,23 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { masterCaseDatabase, getTimeGreeting } from '../data/demsData'
-import CDACHeader from '../components/CDACHeader'
-import CDACFooter from '../components/CDACFooter'
-import CaseFileCard from '../components/CaseFileCard'
+import DashboardHeader from '../components/DashboardHeader'
+import OfficerGreetingRibbon from '../components/OfficerGreetingRibbon'
+import SearchAndFilterBar from '../components/SearchAndFilterBar'
+import CaseFeedGrid from '../components/CaseFeedGrid'
 import CaseDetailsWithNotepadModal from '../components/CaseDetailsWithNotepadModal'
 import ProfileViewerModal from '../components/ProfileViewerModal'
+import Footer from '../components/Footer'
 
 /**
- * Dashboard / Home Page
- * - Top profile ribbon with large eye-catching name, rank, and Edit Profile button
- * - Search bar and cases spanning full screen width
- * - Case progress filter tabs: Active, Under Investigation, In Court, Closed, Archived
- * - Vertical division: Self-Assigned Cases (Left) vs Senior-Delegated Cases (Right)
- * - Large Expanded Case Dossier with Left Cases Navigator Sidebar & Right Notepad
+ * DEMS Master Dashboard (Figma Page 1 Frame 5, 6, & 7)
+ * Modular architecture orchestrating:
+ * - Master Top Dark Bar (Frame 5)
+ * - Officer Greeting Ribbon (Frame 5)
+ * - Full-Width Search & Folder-Style Tabs (Frame 5)
+ * - Dual Column Case Grid (Frame 5)
+ * - Expanded 3-Column Case Dossier & Live Notepad (Frame 6)
+ * - Officer Profile & Settings Modal (Frame 7)
  */
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -148,219 +152,51 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="app-page-wrapper">
-      <CDACHeader activePage="dashboard" />
+    <div className="dems-dashboard-page-root">
+      {/* 1. Master Top Bar (Frame 5) */}
+      <DashboardHeader
+        currentUser={currentUser}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onLogout={handleLogout}
+      />
 
-      {/* Officer Profile Header Banner (Enhanced Height, Eye-Catching Name, No PNO/Org above Name) */}
-      <section className="user-profile-header-strip">
-        <div className="dash-full-container user-strip-flex">
-          {/* Left: Clickable Avatar, Large Prominent Name, Rank, and Edit Profile Button */}
-          <div className="profile-left-block">
-            <button
-              type="button"
-              className="profile-avatar-square"
-              onClick={() => setIsProfileModalOpen(true)}
-              title="Click to view & edit your profile"
-            >
-              {currentUser.name
-                .split(' ')
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join('')}
-            </button>
+      {/* 2. Officer Greeting Ribbon (Frame 5) */}
+      <OfficerGreetingRibbon
+        currentUser={currentUser}
+        greeting={greeting}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+        onLogout={handleLogout}
+      />
 
-            <div className="profile-text-block">
-              <div className="profile-name-row">
-                <h2 className="profile-officer-name">{currentUser.name}</h2>
-                <button
-                  type="button"
-                  className="btn-profile-edit-badge"
-                  onClick={() => setIsProfileModalOpen(true)}
-                  title="Edit Username, Email, Name or Password"
-                >
-                  👤 Edit Profile / Credentials
-                </button>
-              </div>
-
-              <span className="profile-rank-subtitle">
-                {currentUser.roleName} • {currentUser.cadre}
-              </span>
-            </div>
-          </div>
-
-          {/* Right: Dynamic Greeting & Logout */}
-          <div className="profile-right-block">
-            <div className="greeting-box">
-              <span className="greeting-label">Hello,</span>{' '}
-              <strong className="greeting-bold">{greeting}!</strong>
-              <div className="date-time-tag">
-                {new Date().toLocaleDateString('en-IN', {
-                  weekday: 'short',
-                  day: '2-digit',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="btn-signout"
-              onClick={handleLogout}
-              title="Sign Out"
-            >
-              Sign Out ➔
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Main Dashboard Workspace (Full Window Width) */}
-      <main className="dash-full-container page-content-box">
+      {/* 3. Main Full-Width Dashboard Content */}
+      <main className="dash-full-container dashboard-main-content-flow">
         {/* Search Bar & Progress Filter Tabs */}
-        <div className="search-filter-portlet">
-          <div className="search-bar-row">
-            <div className="search-box-wrap">
-              <span className="search-icon">🔍</span>
-              <input
-                type="text"
-                className="input-case-search"
-                placeholder="Search specific cases by FIR No., title, sections, complainant, directive, or keyword..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  className="btn-clear-input"
-                  onClick={() => setSearchQuery('')}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+        <SearchAndFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onClearSearch={() => setSearchQuery('')}
+          progressFilter={progressFilter}
+          onProgressFilterChange={setProgressFilter}
+          progressOptions={progressOptions}
+          getProgressCount={getProgressCount}
+          totalCasesCount={casesList.length}
+          filteredCasesCount={filteredCases.length}
+        />
 
-            <span className="search-count-label">
-              Showing <strong>{filteredCases.length}</strong> of {casesList.length} Total Cases
-            </span>
-          </div>
-
-          {/* Folder-Style Progress Filter Tabs */}
-          <div className="folder-tabs-row">
-            <span className="tabs-heading-label">Filter Progress:</span>
-            <div className="tabs-group">
-              {progressOptions.map((status) => {
-                const isSelected = progressFilter === status
-                const count = getProgressCount(status)
-                return (
-                  <button
-                    key={status}
-                    type="button"
-                    className={`folder-tab-btn ${isSelected ? 'active' : ''}`}
-                    onClick={() => setProgressFilter(status)}
-                  >
-                    {status}
-                    <span className="tab-pill-count">{count}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Dual-Column Layout: Self Assigned Cases (Left) vs Senior Delegated Cases (Right) */}
-        <div className="dual-column-cases-wrap">
-          {/* ================= LEFT COLUMN: SELF ASSIGNED CASES ================= */}
-          <div className="cases-column column-self">
-            <div className="column-bar bar-self">
-              <div>
-                <span className="column-sub-tag">PRIMARY JURISDICTION</span>
-                <h3 className="column-title">
-                  Self-Assigned Case Files
-                  <span className="count-tag count-self">{ownCases.length}</span>
-                </h3>
-              </div>
-              <span className="role-tag-pill">DIRECT IO</span>
-            </div>
-
-            <div className="column-card-list">
-              {ownCases.length === 0 ? (
-                <div className="empty-state-card">
-                  <span className="empty-icon">🗂</span>
-                  <p>No self-assigned cases found matching the active filter.</p>
-                  {(searchQuery || progressFilter !== 'All') && (
-                    <button
-                      type="button"
-                      className="btn-reset-filter"
-                      onClick={() => {
-                        setSearchQuery('')
-                        setProgressFilter('All')
-                      }}
-                    >
-                      Reset Filters
-                    </button>
-                  )}
-                </div>
-              ) : (
-                ownCases.map((c) => (
-                  <CaseFileCard
-                    key={c.id}
-                    caseItem={c}
-                    type="own"
-                    onSelect={(item) => setSelectedCaseId(item.id)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-
-          {/* ================= RIGHT COLUMN: SENIOR DELEGATED CASES ================= */}
-          <div className="cases-column column-delegated">
-            <div className="column-bar bar-del">
-              <div>
-                <span className="column-sub-tag">SUPERVISORY DIRECTIVES</span>
-                <h3 className="column-title">
-                  Senior-Delegated Case Files
-                  <span className="count-tag count-del">{delegatedCases.length}</span>
-                </h3>
-              </div>
-              <span className="role-tag-pill pill-amber">DELEGATED ACCESS</span>
-            </div>
-
-            <div className="column-card-list">
-              {delegatedCases.length === 0 ? (
-                <div className="empty-state-card">
-                  <span className="empty-icon">⚡</span>
-                  <p>No delegated directives found matching the active filter.</p>
-                  {(searchQuery || progressFilter !== 'All') && (
-                    <button
-                      type="button"
-                      className="btn-reset-filter"
-                      onClick={() => {
-                        setSearchQuery('')
-                        setProgressFilter('All')
-                      }}
-                    >
-                      Reset Filters
-                    </button>
-                  )}
-                </div>
-              ) : (
-                delegatedCases.map((c) => (
-                  <CaseFileCard
-                    key={c.id}
-                    caseItem={c}
-                    type="delegated"
-                    onSelect={(item) => setSelectedCaseId(item.id)}
-                  />
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+        {/* Dual Column Case Feed Grid (Frame 5) */}
+        <CaseFeedGrid
+          ownCases={ownCases}
+          delegatedCases={delegatedCases}
+          onSelectCase={(c) => setSelectedCaseId(c.id)}
+          onResetFilters={() => {
+            setSearchQuery('')
+            setProgressFilter('All')
+          }}
+          hasActiveFilters={searchQuery.trim() !== '' || progressFilter !== 'All'}
+        />
       </main>
 
-      {/* Expanded Case Details Dossier with Left Sidebar of other cases & Right Notepad */}
+      {/* 4. Expanded Case Details Dossier with Left Sidebar & Right Notepad (Frame 6) */}
       <CaseDetailsWithNotepadModal
         selectedCase={selectedCase}
         allCases={filteredCases}
@@ -371,7 +207,7 @@ export default function DashboardPage() {
         onDeleteNote={handleDeleteNote}
       />
 
-      {/* Profile Viewer & Account Settings Modal */}
+      {/* 5. Officer Profile & Account Settings Dialog (Frame 7) */}
       <ProfileViewerModal
         isOpen={isProfileModalOpen}
         currentUser={currentUser}
@@ -379,7 +215,8 @@ export default function DashboardPage() {
         onUpdateUser={(updated) => setCurrentUser(updated)}
       />
 
-      <CDACFooter />
+      {/* 6. Universal Government Footer */}
+      <Footer />
     </div>
   )
 }
