@@ -45,4 +45,4 @@ Thumbs.db
 
 # Secrets / credentials
 *.pem
-*.key
+*.keyscratch/
