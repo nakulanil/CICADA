@@ -1,10 +1,13 @@
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
+from cases.models import CaseMember
+from audit.models import AuditLog
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
+from django.http import FileResponse
 
 from .models import Document, DocumentVersion
 from .utils import calculate_file_hash
@@ -39,6 +42,28 @@ class DocumentUploadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        # Check whether the officer is a member of this case
+        is_member = CaseMember.objects.filter(
+            case=document.case,
+            user=request.user,
+            is_active=True,
+        ).exists()
+
+        if not is_member:
+            AuditLog.objects.create(
+                user=request.user,
+                action=AuditLog.Action.ACCESS_DENIED,
+                resource_type="Document",
+                resource_id=str(document.id),
+                description=f"Upload access denied for document: {document.title}",
+                ip_address=request.META.get("REMOTE_ADDR"),
+            )
+
+            return Response(
+                {"error": "You do not have access to this case."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
         file_hash = calculate_file_hash(file)
 
         version_number = document.versions.count() + 1
@@ -46,11 +71,21 @@ class DocumentUploadView(APIView):
         document_version = DocumentVersion.objects.create(
             document=document,
             version_number=version_number,
-            file_path=file.name,
+            file_path=file,
             file_hash=file_hash,
             file_size=file.size,
             mime_type=file.content_type,
             uploaded_by=request.user,
+        )
+
+        # Create audit log for successful upload
+        AuditLog.objects.create(
+            user=request.user,
+            action=AuditLog.Action.UPLOAD,
+            resource_type="DocumentVersion",
+            resource_id=str(document_version.id),
+            description=f"Uploaded version {version_number} of document: {document.title}",
+            ip_address=request.META.get("REMOTE_ADDR"),
         )
 
         return Response(
@@ -71,6 +106,9 @@ class DocumentUploadView(APIView):
 
 class DocumentDetailView(APIView):
 
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, document_id):
         try:
             document = Document.objects.get(id=document_id)
@@ -80,6 +118,38 @@ class DocumentDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        # Check whether the officer is a member of this case
+        is_member = CaseMember.objects.filter(
+            case=document.case,
+            user=request.user,
+            is_active=True,
+        ).exists()
+
+        if not is_member:
+            AuditLog.objects.create(
+                user=request.user,
+                action=AuditLog.Action.ACCESS_DENIED,
+                resource_type="Document",
+                resource_id=str(document.id),
+                description=f"View access denied for document: {document.title}",
+                ip_address=request.META.get("REMOTE_ADDR"),
+            )
+
+            return Response(
+                {"error": "You do not have access to this case."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Create audit log for successful document view
+        AuditLog.objects.create(
+            user=request.user,
+            action=AuditLog.Action.READ,
+            resource_type="Document",
+            resource_id=str(document.id),
+            description=f"Viewed document: {document.title}",
+            ip_address=request.META.get("REMOTE_ADDR"),
+        )
+
         versions = document.versions.all()
 
         version_data = []
@@ -88,7 +158,7 @@ class DocumentDetailView(APIView):
             version_data.append({
                 "version_id": str(version.id),
                 "version_number": version.version_number,
-                "file_name": version.file_path,
+                "file_name": version.file_path.name,
                 "sha256": version.file_hash,
                 "file_size": version.file_size,
                 "mime_type": version.mime_type,
@@ -104,3 +174,64 @@ class DocumentDetailView(APIView):
             "document_type": document.document_type,
             "versions": version_data,
         })
+
+
+class DocumentDownloadView(APIView):
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, version_id):
+        try:
+            version = DocumentVersion.objects.get(id=version_id)
+        except DocumentVersion.DoesNotExist:
+            return Response(
+                {"error": "Document version not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Check whether the officer is a member of this case
+        is_member = CaseMember.objects.filter(
+            case=version.document.case,
+            user=request.user,
+            is_active=True,
+        ).exists()
+
+        if not is_member:
+            AuditLog.objects.create(
+                user=request.user,
+                action=AuditLog.Action.ACCESS_DENIED,
+                resource_type="DocumentVersion",
+                resource_id=str(version.id),
+                description=f"Download access denied for document: {version.document.title}",
+                ip_address=request.META.get("REMOTE_ADDR"),
+            )
+
+            return Response(
+                {"error": "You do not have access to this case."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        if not version.file_path:
+            return Response(
+                {"error": "File not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create audit log for successful download
+        AuditLog.objects.create(
+            user=request.user,
+            action=AuditLog.Action.DOWNLOAD,
+            resource_type="DocumentVersion",
+            resource_id=str(version.id),
+            description=f"Downloaded version {version.version_number} of document: {version.document.title}",
+            ip_address=request.META.get("REMOTE_ADDR"),
+        )
+
+        return FileResponse(
+            version.file_path.open("rb"),
+            content_type=version.mime_type,
+            as_attachment=True,
+            filename=version.file_path.name.split("/")[-1],
+        )
+
