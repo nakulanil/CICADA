@@ -16,8 +16,8 @@ export default function CaseDetailsWithNotepadModal({
   if (!selectedCase) return null
 
   const [noteText, setNoteText] = useState('')
-  const [notePriority, setNotePriority] = useState('routine')
-  const [noteTag, setNoteTag] = useState('General Investigation')
+  const notePriority = 'routine'
+  const noteTag = 'General Investigation'
   const [saveFeedback, setSaveFeedback] = useState(false)
   const [sidebarFilter, setSidebarFilter] = useState('all')
 
@@ -281,36 +281,6 @@ export default function CaseDetailsWithNotepadModal({
                 >
                   🗣 Witness
                 </button>
-              </div>
-
-              <div className="note-meta-selectors">
-                <div className="sel-group">
-                  <label>Note Category:</label>
-                  <select
-                    className="notepad-select"
-                    value={noteTag}
-                    onChange={(e) => setNoteTag(e.target.value)}
-                  >
-                    <option value="General Investigation">General Investigation</option>
-                    <option value="Spot Inspection Memo">Spot Inspection Memo</option>
-                    <option value="Witness Interrogation">Witness Interrogation</option>
-                    <option value="Forensic Analysis">Forensic Analysis</option>
-                    <option value="Senior Directive Compliance">Senior Directive Compliance</option>
-                  </select>
-                </div>
-
-                <div className="sel-group">
-                  <label>Priority Tag:</label>
-                  <select
-                    className="notepad-select"
-                    value={notePriority}
-                    onChange={(e) => setNotePriority(e.target.value)}
-                  >
-                    <option value="routine">Routine</option>
-                    <option value="important">Important (Action Needed)</option>
-                    <option value="confidential">Confidential (IO Only)</option>
-                  </select>
-                </div>
               </div>
 
               <textarea

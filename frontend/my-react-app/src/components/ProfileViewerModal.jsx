@@ -180,7 +180,7 @@ export default function ProfileViewerModal({ isOpen, currentUser, onClose, onUpd
             <button type="button" className="btn-profile-cancel" onClick={onClose}>
               Done
             </button>
-            <button type="submit" className="btn-submit-action">
+            <button type="submit" className="btn-profile-save">
               Save Profile Changes
             </button>
           </div>

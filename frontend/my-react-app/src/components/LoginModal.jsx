@@ -134,7 +134,6 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }) {
               />
               <span>Remember me</span>
             </label>
-            <span className="figma-secure-tag">🔒 256-bit TLS</span>
           </div>
 
           <button type="submit" className="btn-animated btn-figma-submit">
