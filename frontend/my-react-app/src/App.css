@@ -2444,6 +2444,21 @@
   border-top: 1px solid #e2e8f0;
 }
 
+.btn-profile-save {
+  background: linear-gradient(180deg, #0e3366 0%, #0a2540 100%);
+  border: 1px solid #0a2540;
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 16px;
+}
+
+.btn-profile-save:hover {
+  background: linear-gradient(180deg, #17375e 0%, #0e3366 100%);
+}
+
 .btn-profile-cancel {
   background: #f1f5f9;
   border: 1px solid #cbd5e1;

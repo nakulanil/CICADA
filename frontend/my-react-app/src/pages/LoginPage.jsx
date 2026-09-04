@@ -161,7 +161,6 @@ export default function LoginPage() {
                 />
                 <span>Remember session on this device</span>
               </label>
-              <span className="secure-badge-note">🔒 256-bit TLS</span>
             </div>
 
             <button type="submit" className="btn-animated btn-auth-submit">
