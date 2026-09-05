@@ -5,6 +5,7 @@ from django.db import models
 
 
 class Document(models.Model):
+
     class DocumentType(models.TextChoices):
         FIR = "FIR", "FIR"
         POLICE_REPORT = "POLICE_REPORT", "Police Report"
@@ -29,14 +30,18 @@ class Document(models.Model):
         related_name="documents",
     )
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(
+        max_length=255,
+    )
 
     document_type = models.CharField(
         max_length=30,
         choices=DocumentType.choices,
     )
 
-    description = models.TextField(blank=True)
+    description = models.TextField(
+        blank=True,
+    )
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -44,14 +49,20 @@ class Document(models.Model):
         related_name="created_documents",
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
 
     def __str__(self):
         return self.title
 
+
 class DocumentVersion(models.Model):
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -66,7 +77,13 @@ class DocumentVersion(models.Model):
 
     version_number = models.PositiveIntegerField()
 
-    file_path = models.FileField(upload_to="documents/")
+    file_path = models.FileField(
+        upload_to="documents/",
+    )
+
+    original_filename = models.CharField(
+        max_length=255,
+    )
 
     file_hash = models.CharField(
         max_length=64,
@@ -75,7 +92,9 @@ class DocumentVersion(models.Model):
 
     file_size = models.PositiveBigIntegerField()
 
-    mime_type = models.CharField(max_length=100)
+    mime_type = models.CharField(
+        max_length=100,
+    )
 
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -83,7 +102,9 @@ class DocumentVersion(models.Model):
         related_name="uploaded_document_versions",
     )
 
-    uploaded_at = models.DateTimeField(auto_now_add=True)
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
     class Meta:
         constraints = [
@@ -92,12 +113,15 @@ class DocumentVersion(models.Model):
                 name="unique_document_version",
             )
         ]
+
         ordering = ["-version_number"]
 
     def __str__(self):
         return f"{self.document.title} - v{self.version_number}"
 
+
 class Evidence(models.Model):
+
     class EvidenceStatus(models.TextChoices):
         COLLECTED = "COLLECTED", "Collected"
         IN_CUSTODY = "IN_CUSTODY", "In Custody"
@@ -154,9 +178,13 @@ class Evidence(models.Model):
         blank=True,
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
 
     class Meta:
         constraints = [
@@ -171,6 +199,7 @@ class Evidence(models.Model):
 
 
 class CustodyEvent(models.Model):
+
     class Action(models.TextChoices):
         COLLECTED = "COLLECTED", "Collected"
         TRANSFERRED = "TRANSFERRED", "Transferred"
@@ -211,7 +240,9 @@ class CustodyEvent(models.Model):
         choices=Action.choices,
     )
 
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(
+        auto_now_add=True,
+    )
 
     location = models.CharField(
         max_length=255,
@@ -230,3 +261,5 @@ class CustodyEvent(models.Model):
 
     def __str__(self):
         return f"{self.evidence.evidence_number} - {self.action}"
+
+    
