@@ -1,19 +1,26 @@
 from django.urls import path
-
-from .views import DocumentUploadView, DocumentDetailView
+from .views import (
+    DocumentUploadView,
+    DocumentDetailView,
+    DocumentDownloadView,
+)
 
 urlpatterns = [
-
     path(
         "upload/",
         DocumentUploadView.as_view(),
-        name="document-upload"
+        name="document-upload",
+    ),
+
+    path(
+        "version/<uuid:version_id>/download/",
+        DocumentDownloadView.as_view(),
+        name="document-download",
     ),
 
     path(
         "<uuid:document_id>/",
         DocumentDetailView.as_view(),
-        name="document-detail"
+        name="document-detail",
     ),
-
 ]

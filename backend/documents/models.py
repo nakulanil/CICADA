@@ -66,7 +66,7 @@ class DocumentVersion(models.Model):
 
     version_number = models.PositiveIntegerField()
 
-    file_path = models.CharField(max_length=500)
+    file_path = models.FileField(upload_to="documents/")
 
     file_hash = models.CharField(
         max_length=64,
