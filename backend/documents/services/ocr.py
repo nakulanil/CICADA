@@ -1,75 +1,201 @@
 """
 backend/documents/services/ocr.py
 
-Handles: image -> preprocessing -> Tesseract -> text
+Image OCR pipeline:
+
+Image
+  ↓
+PIL Image
+  ↓
+OpenCV preprocessing
+  ↓
+Tesseract OCR
+  ↓
+Text + confidence information
 """
+
+from __future__ import annotations
+
+from statistics import mean
+from typing import Any
+
 import cv2
 import numpy as np
 import pytesseract
 from PIL import Image
+from pytesseract import Output
 
 
-def preprocess_image(pil_image: Image.Image) -> Image.Image:
+DEFAULT_LANGUAGE = "eng+hin"
+
+
+def preprocess_image(
+    pil_image: Image.Image,
+    use_threshold: bool = True,
+    use_denoising: bool = True,
+) -> Image.Image:
     """
-    Clean up an image before sending it to Tesseract.
-    Real-world documents (phone photos, low-quality scans) benefit
-    heavily from this. Clean digital renders are barely affected.
+    Preprocess an image before OCR.
 
     Steps:
-    1. Convert to grayscale (Tesseract works best on grayscale, not color)
-    2. Apply adaptive thresholding (turns image into clean black/white,
-       correcting for uneven lighting/shadows across the page)
-    3. Denoise (removes small speckle noise from scans/photos)
+    1. Convert to RGB.
+    2. Convert RGB -> grayscale.
+    3. Optional adaptive thresholding.
+    4. Optional denoising.
+
+    This is intentionally configurable because not every scan benefits
+    from aggressive preprocessing.
     """
-    # Convert PIL Image -> OpenCV format (numpy array, BGR)
-    img = np.array(pil_image.convert("RGB"))
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-    # Step 1: grayscale
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # PIL -> NumPy
+    image = np.array(pil_image.convert("RGB"))
 
-    # Step 2: adaptive threshold (handles uneven lighting better than
-    # a single global threshold value would)
-    thresh = cv2.adaptiveThreshold(
-        gray,
-        255,
-        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        cv2.THRESH_BINARY,
-        blockSize=31,
-        C=15,
-    )
+    # RGB -> BGR for OpenCV
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-    # Step 3: light denoising
-    denoised = cv2.fastNlMeansDenoising(thresh, h=10)
+    # BGR -> grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Convert back to PIL Image for pytesseract
-    return Image.fromarray(denoised)
+    processed = gray
+
+    if use_threshold:
+        processed = cv2.adaptiveThreshold(
+            processed,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            blockSize=31,
+            C=15,
+        )
+
+    if use_denoising:
+        processed = cv2.fastNlMeansDenoising(
+            processed,
+            None,
+            h=10,
+            templateWindowSize=7,
+            searchWindowSize=21,
+        )
+
+    return Image.fromarray(processed)
+
+
+def get_tesseract_info():
+    """Return the installed Tesseract version and available languages."""
+
+    version = str(pytesseract.get_tesseract_version())
+    languages = pytesseract.get_languages(config="")
+
+    return {"version": version, "languages": languages}
+
+
+def validate_tesseract_languages(
+    required_languages: tuple[str, ...] = ("eng", "hin"),
+) -> None:
+    """
+    Raise an error if required Tesseract language packs are missing.
+    """
+
+    available = set(pytesseract.get_languages(config=""))
+
+    missing = [
+        language
+        for language in required_languages
+        if language not in available
+    ]
+
+    if missing:
+        raise RuntimeError(
+            "Missing Tesseract language data: "
+            + ", ".join(missing)
+        )
 
 
 def extract_text_from_image(
     image: Image.Image,
-    lang: str = "eng+hin",
+    lang: str = DEFAULT_LANGUAGE,
     preprocess: bool = True,
+    psm: int = 3,
 ) -> str:
     """
-    Run Tesseract OCR on a single image.
+    Extract plain text from an image.
 
-    lang="eng+hin" tells Tesseract to look for BOTH languages on the
-    same page, which matters for mixed-language Indian documents.
+    psm=3:
+        Tesseract automatic page segmentation.
     """
+
     if preprocess:
         image = preprocess_image(image)
 
-    return pytesseract.image_to_string(image, lang=lang)
+    config = f"--psm {psm}"
+
+    return pytesseract.image_to_string(
+        image,
+        lang=lang,
+        config=config,
+    )
 
 
-def get_tesseract_info() -> dict:
+def extract_text_with_confidence(
+    image: Image.Image,
+    lang: str = DEFAULT_LANGUAGE,
+    preprocess: bool = True,
+    psm: int = 3,
+) -> dict[str, Any]:
     """
-    Quick diagnostic: confirms what Tesseract version and languages
-    are actually available on this machine. Useful to run once per
-    machine setup, or when something seems off.
+    OCR with word-level confidence information.
+
+    Returns:
+        {
+            "text": "...",
+            "average_confidence": 87.5,
+            "words_detected": 123
+        }
     """
+
+    if preprocess:
+        image = preprocess_image(image)
+
+    config = f"--psm {psm}"
+
+    data = pytesseract.image_to_data(
+        image,
+        lang=lang,
+        config=config,
+        output_type=Output.DICT,
+    )
+
+    words: list[str] = []
+    confidences: list[float] = []
+
+    for text, confidence in zip(
+        data["text"],
+        data["conf"],
+    ):
+        text = text.strip()
+
+        try:
+            confidence_value = float(confidence)
+        except (TypeError, ValueError):
+            continue
+
+        if not text:
+            continue
+
+        words.append(text)
+
+        # Tesseract can use -1 for non-word regions.
+        if confidence_value >= 0:
+            confidences.append(confidence_value)
+
+    average_confidence = (
+        round(mean(confidences), 2)
+        if confidences
+        else 0.0
+    )
+
     return {
-        "version": str(pytesseract.get_tesseract_version()),
-        "languages": pytesseract.get_languages(config=""),
+        "text": " ".join(words),
+        "average_confidence": average_confidence,
+        "words_detected": len(words),
     }
