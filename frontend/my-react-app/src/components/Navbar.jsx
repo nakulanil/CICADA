@@ -33,7 +33,7 @@ export default function Navbar({
         <div className="site-container nav-flex-wrapper">
           {/* Brand Logo & Authority */}
           <Link to="/" className="brand-logo-group" title="DEMS - Home">
-            <NationalEmblem size={44} color="#0f172a" />
+            <NationalEmblem size={64} color="#0f172a" />
             <div className="brand-identity-text">
               <span className="brand-primary-acronym">DEMS</span>
               <span className="brand-authority-title">MINISTRY OF HOME AFFAIRS</span>
