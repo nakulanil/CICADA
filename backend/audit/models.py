@@ -5,6 +5,7 @@ from django.db import models
 
 
 class AuditLog(models.Model):
+
     class Action(models.TextChoices):
         CREATE = "CREATE", "Create"
         READ = "READ", "Read"
