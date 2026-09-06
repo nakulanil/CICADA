@@ -1,6 +1,10 @@
 from rest_framework import serializers
 
-from .models import Document, DocumentVersion
+from .models import (
+    Document,
+    DocumentVersion,
+    DocumentProcessingResult,
+)
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -51,4 +55,33 @@ class DocumentVersionSerializer(serializers.ModelSerializer):
             "mime_type",
             "uploaded_by",
             "uploaded_at",
+        ]
+
+
+class DocumentProcessingResultSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = DocumentProcessingResult
+        fields = [
+            "id",
+            "document_version",
+            "status",
+            "extraction_method",
+            "page_count",
+            "raw_text",
+            "cleaned_text",
+            "average_ocr_confidence",
+            "fir_number",
+            "fir_date",
+            "fir_year",
+            "district",
+            "police_station",
+            "suspected_offence",
+            "sections",
+            "error_message",
+            "processed_at",
+        ]
+        read_only_fields = [
+            "id",
+            "processed_at",
         ]

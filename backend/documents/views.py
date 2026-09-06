@@ -12,7 +12,11 @@ from django.http import FileResponse
 from cases.models import CaseMember
 from audit.models import AuditLog
 
-from .models import Document, DocumentVersion
+from .models import (
+    Document,
+    DocumentVersion,
+    DocumentProcessingResult,
+)
 from .utils import calculate_file_hash
 
 from cases.permissions import (
@@ -306,6 +310,91 @@ class DocumentDetailView(APIView):
             "versions": version_data,
         })
 
+class DocumentProcessingResultView(APIView):
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, version_id):
+
+        try:
+            document_version = (
+                DocumentVersion.objects
+                .select_related("document__case")
+                .get(id=version_id)
+            )
+        except DocumentVersion.DoesNotExist:
+            return Response(
+                {"error": "Document version not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        document = document_version.document
+
+        # Check case-level view permission
+        if not has_case_permission(
+            request.user,
+            document.case,
+            "view",
+        ):
+            create_access_denied_log(
+                request.user,
+                "DocumentProcessingResult",
+                document_version.id,
+                (
+                    "Processing result access denied for "
+                    f"document: {document.title}"
+                ),
+                request,
+            )
+
+            return Response(
+                {
+                    "error": (
+                        "You do not have permission to view "
+                        "this processing result."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            processing_result = (
+                DocumentProcessingResult.objects
+                .get(document_version=document_version)
+            )
+        except DocumentProcessingResult.DoesNotExist:
+            return Response(
+                {"error": "Processing result not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {
+                "id": str(processing_result.id),
+                "document_version": str(
+                    processing_result.document_version.id
+                ),
+                "status": processing_result.status,
+                "extraction_method": processing_result.extraction_method,
+                "page_count": processing_result.page_count,
+                "raw_text": processing_result.raw_text,
+                "cleaned_text": processing_result.cleaned_text,
+                "average_ocr_confidence": (
+                    processing_result.average_ocr_confidence
+                ),
+                "fir_number": processing_result.fir_number,
+                "fir_date": processing_result.fir_date,
+                "fir_year": processing_result.fir_year,
+                "district": processing_result.district,
+                "police_station": processing_result.police_station,
+                "suspected_offence": processing_result.suspected_offence,
+                "sections": processing_result.sections,
+                "error_message": processing_result.error_message,
+                "processed_at": processing_result.processed_at,
+            },
+            status=status.HTTP_200_OK
+        )
 
 class DocumentDownloadView(APIView):
 
