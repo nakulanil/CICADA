@@ -113,11 +113,105 @@ class DocumentVersion(models.Model):
                 name="unique_document_version",
             )
         ]
-
         ordering = ["-version_number"]
 
     def __str__(self):
         return f"{self.document.title} - v{self.version_number}"
+
+
+class DocumentProcessingResult(models.Model):
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    document_version = models.OneToOneField(
+        "documents.DocumentVersion",
+        on_delete=models.CASCADE,
+        related_name="processing_result",
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("PENDING", "Pending"),
+            ("COMPLETED", "Completed"),
+            ("FAILED", "Failed"),
+        ],
+        default="PENDING",
+    )
+
+    extraction_method = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+    )
+
+    page_count = models.PositiveIntegerField(
+        null=True,
+    )
+
+    raw_text = models.TextField(
+        blank=True,
+    )
+
+    cleaned_text = models.TextField(
+        blank=True,
+    )
+
+    average_ocr_confidence = models.FloatField(
+        null=True,
+    )
+
+    fir_number = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+    )
+
+    fir_date = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+    )
+
+    fir_year = models.CharField(
+        max_length=10,
+        blank=True,
+        null=True,
+    )
+
+    district = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+
+    police_station = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+
+    suspected_offence = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    sections = models.JSONField(
+        default=list,
+        blank=True,
+    )
+
+    error_message = models.TextField(
+        blank=True,
+    )
+
+    processed_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
 
 class Evidence(models.Model):
