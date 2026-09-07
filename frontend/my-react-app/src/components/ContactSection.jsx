@@ -20,10 +20,10 @@ export default function ContactSection() {
             <strong>Ministry of Home Affairs:</strong> Digital Evidence Division, North Block, Central Secretariat, New Delhi - 110001
           </div>
           <div className="contact-line-item">
-            <strong>Official Support:</strong> <a href="mailto:support.dems@gov.in">support.dems@gov.in</a> | <strong>Liaison:</strong> <a href="mailto:liaison.dems@gov.in">liaison.dems@gov.in</a>
+            <strong>Official Support:</strong> <a href="mailto:support.esakshya@gov.in">support.esakshya@gov.in</a> | <strong>Liaison:</strong> <a href="mailto:liaison.esakshya@gov.in">liaison.esakshya@gov.in</a>
           </div>
           <div className="contact-line-item">
-            <strong>National Toll-Free:</strong> 1800-11-DEMS (3367) (24×7 Operational Desk)
+            <strong>National Toll-Free:</strong> 1800-11-3367 (24×7 Operational Desk)
           </div>
           <div className="contact-line-item">
             <strong>Technical Support:</strong> Monday – Friday: 9:00 AM – 6:00 PM IST

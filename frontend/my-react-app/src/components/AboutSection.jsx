@@ -14,7 +14,7 @@ export default function AboutSection() {
         <div className="section-header-block">
           <h2 className="section-heading-ochre">ABOUT US</h2>
           <p className="section-lead-paragraph">
-            This digital Evidence Management System serves as a secure, tamper-evident digital repository for law enforcement, forensics, prosecution, and courts to share, collaborate, authenticate, and manage digital and physical evidence.
+            e-SAKSHYA serves as a secure, tamper-evident digital repository for law enforcement, forensics, prosecution, and courts to share, collaborate, authenticate, and manage digital and physical evidence.
           </p>
         </div>
 

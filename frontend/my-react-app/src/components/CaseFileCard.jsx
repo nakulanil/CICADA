@@ -42,12 +42,6 @@ export default function CaseFileCard({ caseItem, type = 'own', onSelect }) {
       {/* Case Title */}
       <h3 className="case-title-text">{caseItem.title}</h3>
 
-      {/* Sections of Law */}
-      <div className="case-legal-sections">
-        <span className="section-label">Sections of Law:</span>
-        <span className="section-code">{caseItem.sections}</span>
-      </div>
-
       {/* Delegated Senior Officer Directive Box */}
       {isDelegated && caseItem.delegatedBy && (
         <div className="senior-delegator-box">

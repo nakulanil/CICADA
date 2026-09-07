@@ -26,7 +26,7 @@ export function DEMSBadge({ size = 38 }) {
       <path d="M32 23V29M29 26H35" stroke="#ffd700" strokeWidth="2" />
       <path d="M25 36H39L41 45H23L25 36Z" fill="#c5a059" stroke="#ffffff" strokeWidth="1" />
       <text x="32" y="42.5" textAnchor="middle" fill="#002244" fontSize="4.5" fontWeight="bold">
-        DEMS
+        e-SAKSHYA
       </text>
     </svg>
   )

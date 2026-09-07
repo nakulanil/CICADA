@@ -18,7 +18,7 @@ export default function WhatWeDoSection() {
         <div className="what-we-do-header">
           <h2 className="section-heading-navy">What we do</h2>
           <p className="what-we-do-lead">
-            Across the country, DEMS provides common platform to manage and track digital evidence :
+            Across the country, e-SAKSHYA provides a common platform to manage and track digital evidence:
           </p>
         </div>
 

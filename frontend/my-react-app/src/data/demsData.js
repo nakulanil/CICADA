@@ -383,7 +383,7 @@ export const masterCaseDatabase = [
         id: 'note-1',
         timestamp: '15-Dec-2025 12:00',
         author: 'Records Officer',
-        text: 'Permanent retention schedule completed. Hash integrity verified on C-DAC DEMS repository.',
+        text: 'Permanent retention schedule completed. Hash integrity verified on the e-SAKSHYA repository.',
       },
     ],
   },

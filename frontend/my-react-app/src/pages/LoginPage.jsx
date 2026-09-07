@@ -164,7 +164,7 @@ export default function LoginPage() {
             </div>
 
             <button type="submit" className="btn-animated btn-auth-submit">
-              Sign In to DEMS Gateway ➔
+              Sign In to e-SAKSHYA Gateway ➔
             </button>
 
             {/* Quick Demo Test Profiles */}

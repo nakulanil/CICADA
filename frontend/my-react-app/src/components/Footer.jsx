@@ -8,7 +8,7 @@ export default function Footer() {
     <footer className="gov-official-footer">
       <div className="site-container footer-flex-container">
         <div className="footer-left-meta">
-          <strong>Digital Evidence Management System (DEMS)</strong>
+          <strong>e-SAKSHYA</strong>
           <span className="footer-agency-sub">
             Ministry of Home Affairs • Government of India
           </span>

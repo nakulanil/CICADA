@@ -5,7 +5,7 @@ import secretariatHeroImg from '../assets/secretariat_hero.jpg'
 /**
  * Hero Section (Exact Figma Page 1 Frame 1)
  * - Central Secretariat architectural background
- * - White bold headline: "Welcome to the Digital Evidence Management System"
+ * - White bold headline: "Welcome to e-SAKSHYA"
  * - Subtitle: "A unified platform for secure, tamper-evident digital evidence workflow across agencies."
  * - [ Register ] and [ Login ] buttons
  */
@@ -23,8 +23,7 @@ export default function HeroSection({ onOpenLogin, onOpenRegister }) {
       <div className="site-container hero-inner-container">
         <div className="hero-content-block">
           <h1 className="hero-main-headline">
-            Welcome to the Digital Evidence<br />
-            Management System
+            Welcome to e-SAKSHYA
           </h1>
 
           <p className="hero-sub-text">
