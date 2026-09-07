@@ -1,0 +1,38 @@
+name: Continuous Integration (PS26190)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Start Docker Stack
+        run: |
+          docker compose up -d --build
+          docker compose ps
+
+      - name: Install Test Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install minio requests pytest
+
+      - name: Run Seed Script Verification
+        run: |
+          python seed_data/seed_runner.py
+
+      - name: Tear Down Stack
+        if: always()
+        run: docker compose down
