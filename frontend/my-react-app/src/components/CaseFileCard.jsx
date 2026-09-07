@@ -1,127 +1,122 @@
 import React from 'react'
 
 /**
- * Case File Card Component
- * Supports both Primary Assigned Cases and Senior-Delegated Cases
+ * Case File Card (Figma Page 1 Specification)
+ * Interactive card with hover lift, status badges, and action triggers
  */
-export default function CaseFileCard({ caseItem, type, onSelect }) {
-  if (type === 'delegated') {
-    return (
-      <article className={`case-file-card delegated-case-card priority-${caseItem.statusLevel}`}>
-        {/* Top Metadata */}
-        <div className="card-top-meta">
-          <span className="fir-badge badge-del">{caseItem.firNumber}</span>
-          <span className="case-date">Delegated: {caseItem.date}</span>
-          <span className={`status-pill pill-${caseItem.statusLevel}`}>{caseItem.status}</span>
-        </div>
+export default function CaseFileCard({ caseItem, type = 'own', onSelect }) {
+  const isDelegated = type === 'delegated'
+  const notesCount = caseItem.initialNotes?.length || 0
 
-        {/* Delegated By Authority Box */}
-        <div className="senior-delegator-box">
-          <span className="delegator-icon">🎖</span>
-          <div className="delegator-text">
-            <span className="delegator-label">Delegated By Senior Authority:</span>
-            <strong className="delegator-name">{caseItem.delegatedBy}</strong>
-            <span className="delegator-desig">({caseItem.seniorDesignation})</span>
-          </div>
-        </div>
-
-        {/* Title */}
-        <h3 className="case-title-text">{caseItem.title}</h3>
-
-        {/* Legal Sections */}
-        <div className="case-legal-sections">
-          <span className="section-label">Under Sections:</span>
-          <code className="section-code">{caseItem.sections}</code>
-        </div>
-
-        {/* Senior Mandate & Directive */}
-        <div className="senior-directive-box">
-          <div className="directive-header">
-            <span className="directive-icon">⚡</span>
-            <strong>SENIOR MANDATE & DIRECTIVE:</strong>
-          </div>
-          <p className="directive-body">"{caseItem.directive}"</p>
-        </div>
-
-        {/* Clearance & Deadline */}
-        <div className="delegation-meta-row">
-          <div className="del-meta-cell">
-            <span className="m-label">Clearance Scope:</span>
-            <span className="m-val">{caseItem.accessLevel}</span>
-          </div>
-          <div className="del-meta-cell">
-            <span className="m-label">Action Deadline:</span>
-            <span className="m-val highlight-deadline">{caseItem.deadline}</span>
-          </div>
-        </div>
-
-        {/* Card Footer */}
-        <div className="case-footer-row">
-          <div className="counts-badges">
-            <span className="stat-pill">🗂 {caseItem.evidenceItems} Exhibits Shared</span>
-            <span className="stat-pill pill-restricted">Restricted Clearance</span>
-          </div>
-          <button
-            type="button"
-            className="view-dossier-btn btn-del"
-            onClick={() => onSelect({ ...caseItem, type: 'delegated' })}
-          >
-            Open Delegated Record ➔
-          </button>
-        </div>
-      </article>
-    )
+  const getStatusClass = (status) => {
+    const s = (status || '').toLowerCase().replace(/\s+/g, '-')
+    if (s.includes('active')) return 'status-active'
+    if (s.includes('investigation')) return 'status-under-investigation'
+    if (s.includes('court')) return 'status-in-court'
+    if (s.includes('closed')) return 'status-closed'
+    if (s.includes('archived')) return 'status-archived'
+    return 'status-active'
   }
 
-  // Default: Primary Assigned Own Case
   return (
-    <article className={`case-file-card own-case-card priority-${caseItem.statusLevel}`}>
-      {/* Top Metadata */}
+    <div
+      className={`case-file-card ${isDelegated ? 'delegated-case-card' : ''}`}
+      onClick={() => onSelect && onSelect(caseItem)}
+    >
+      {/* Top Header Row */}
       <div className="card-top-meta">
-        <span className="fir-badge">{caseItem.firNumber}</span>
-        <span className="case-date">Registered: {caseItem.date}</span>
-        <span className={`status-pill pill-${caseItem.statusLevel}`}>{caseItem.status}</span>
+        <div className="meta-left-tags">
+          <span className={`fir-badge ${isDelegated ? 'badge-del' : ''}`}>
+            {caseItem.firNumber}
+          </span>
+          <span className="case-date">
+            {isDelegated ? `Delegated: ${caseItem.date}` : `Registered: ${caseItem.date}`}
+          </span>
+        </div>
+
+        <span className={`progress-badge ${getStatusClass(caseItem.progressStatus)}`}>
+          {caseItem.progressStatus}
+        </span>
       </div>
 
       {/* Case Title */}
       <h3 className="case-title-text">{caseItem.title}</h3>
 
-      {/* Legal Sections */}
+      {/* Sections of Law */}
       <div className="case-legal-sections">
         <span className="section-label">Sections of Law:</span>
-        <code className="section-code">{caseItem.sections}</code>
+        <span className="section-code">{caseItem.sections}</span>
       </div>
 
-      {/* Metadata Grid */}
-      <div className="case-meta-grid">
-        <div className="meta-item">
-          <span className="m-label">Complainant / Source:</span>
-          <span className="m-val">{caseItem.complainant}</span>
+      {/* Delegated Senior Officer Directive Box */}
+      {isDelegated && caseItem.delegatedBy && (
+        <div className="senior-delegator-box">
+          <span className="delegator-icon">⚡</span>
+          <span className="delegator-label">Mandate Authority: </span>
+          <strong>{caseItem.delegatedBy}</strong> ({caseItem.seniorDesignation || 'DCP / Supervisory'})
         </div>
-        <div className="meta-item">
-          <span className="m-label">Current Stage:</span>
-          <span className="m-val highlight-stage">{caseItem.stage}</span>
-        </div>
-      </div>
+      )}
 
-      {/* Summary */}
+      {isDelegated && caseItem.directive && (
+        <div className="senior-directive-box">
+          <div className="directive-header">
+            <span>📌 ACTION DIRECTIVE:</span>
+          </div>
+          <p className="directive-body">"{caseItem.directive}"</p>
+        </div>
+      )}
+
+      {/* Case Metadata Details */}
+      {!isDelegated ? (
+        <div className="case-meta-grid">
+          <div className="meta-cell">
+            <span className="m-label">Complainant / Source: </span>
+            <span className="m-val">{caseItem.complainant || 'Station Roster'}</span>
+          </div>
+          <div className="meta-cell">
+            <span className="m-label">Current Stage: </span>
+            <span className="m-val highlight-stage">{caseItem.stage}</span>
+          </div>
+        </div>
+      ) : (
+        <div className="delegation-meta-row">
+          <div>
+            <span className="m-label">Clearance Scope: </span>
+            <span className="m-val">{caseItem.accessLevel || 'Full Supervisory'}</span>
+          </div>
+          <div>
+            <span className="m-label">Target Deadline: </span>
+            <span className="m-val highlight-deadline">{caseItem.deadline || 'Immediate'}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Summary Narrative */}
       <p className="case-summary-para">{caseItem.summary}</p>
 
-      {/* Card Footer */}
+      {/* Footer Exhibits & Trigger Button */}
       <div className="case-footer-row">
         <div className="counts-badges">
-          <span className="stat-pill">📖 {caseItem.caseDiaryEntries} Diary Logs</span>
-          <span className="stat-pill">🗂 {caseItem.evidenceItems} Exhibits</span>
+          {caseItem.caseDiaryEntries && (
+            <span className="stat-pill">📋 {caseItem.caseDiaryEntries} CD Logs</span>
+          )}
+          <span className="stat-pill">🗂️ {caseItem.evidenceItems || 4} Exhibits</span>
+          <span className={`stat-pill ${notesCount > 0 ? 'pill-notes' : ''}`}>
+            📝 {notesCount} Notes
+          </span>
         </div>
+
         <button
           type="button"
-          className="view-dossier-btn"
-          onClick={() => onSelect({ ...caseItem, type: 'own' })}
+          className={`btn-animated view-dossier-btn ${isDelegated ? 'btn-del' : ''}`}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (onSelect) onSelect(caseItem)
+          }}
         >
-          Examine Case File ➔
+          {isDelegated ? 'Open Dossier & Notepad ➔' : 'Open Case & Notepad ➔'}
         </button>
       </div>
-    </article>
+    </div>
   )
 }
-

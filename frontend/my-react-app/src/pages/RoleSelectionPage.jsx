@@ -24,7 +24,7 @@ export default function RoleSelectionPage() {
         <div className="gov-tricolor-strip" />
         <div className="gov-bar-content">
           <div className="gov-seal-wrap">
-            <PoliceEmblem size={48} />
+            <PoliceEmblem size={68} />
             <div className="gov-titles">
               <span className="gov-dept-tag">GOVERNMENT OF INDIA • STATE POLICE DEPARTMENT</span>
               <h1 className="gov-main-title">Crime & Criminal Tracking Network & Systems (CCTNS)</h1>

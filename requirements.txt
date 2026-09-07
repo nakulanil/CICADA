@@ -1,3 +1,14 @@
+# Backend dependencies
+# Install with: python -m pip install -r requirements.txt
+#
+# Frontend prerequisite: install Node.js (which includes npm), then run the
+# following commands from frontend/my-react-app:
+#   npm ci
+#   npm run dev
+#
+# npm ci installs the React, React DOM, React Router, Vite, React plugin, and
+# ESLint dependencies declared in package.json using package-lock.json.
+
 aiohappyeyeballs==2.7.1
 aiohttp==3.14.3
 aiosignal==1.4.0
