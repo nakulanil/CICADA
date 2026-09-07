@@ -3,7 +3,7 @@ import CaseFileCard from './CaseFileCard'
 
 /**
  * Dual Column Case Feed Grid (Figma Page 1 Frame 5)
- * - Left Column: Blue #0E3366 "DEMS Pending and Active Files ▾"
+ * - Left Column: Blue #0E3366 "e-SAKSHYA Pending and Active Files ▾"
  * - Right Column: Ochre/Gold #B37D2E "Special - Confidential Case Files ▾"
  */
 export default function CaseFeedGrid({
@@ -21,7 +21,7 @@ export default function CaseFeedGrid({
           <div className="banner-left-content">
             <span className="banner-eyebrow">PRIMARY JURISDICTION</span>
             <h2 className="banner-main-title">
-              DEMS Pending and Active Files <span className="dropdown-caret">▾</span>
+              e-SAKSHYA Pending and Active Files <span className="dropdown-caret">▾</span>
               <span className="banner-count-badge">{ownCases.length}</span>
             </h2>
           </div>

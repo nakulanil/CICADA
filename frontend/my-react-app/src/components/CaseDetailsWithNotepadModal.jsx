@@ -234,7 +234,7 @@ export default function CaseDetailsWithNotepadModal({
               </div>
 
               <div className="hash-verification-banner">
-                <span className="hash-tag">DEMS SHA-256 INTEGRITY HASH:</span>
+                <span className="hash-tag">e-SAKSHYA SHA-256 INTEGRITY HASH:</span>
                 <code className="hash-code">{selectedCase.evidenceHash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}</code>
                 <span className="hash-cert-note">
                   ✓ Certified Tamper-Evident under Section 65B Indian Evidence Act / Section 63 BSA 2023
@@ -247,7 +247,6 @@ export default function CaseDetailsWithNotepadModal({
           <div className="modal-right-notepad">
             <div className="notepad-header-strip">
               <div className="np-title-row">
-                <span className="notepad-icon">📝</span>
                 <div>
                   <h4 className="notepad-heading">Investigation Notepad</h4>
                   <span className="notepad-sub">Official IO Field Notes & Observations</span>
@@ -329,7 +328,7 @@ export default function CaseDetailsWithNotepadModal({
                     >
                       <div className="note-card-header">
                         <div>
-                          <strong className="note-author-stamp">✍ {note.author || 'IO'}</strong>
+                          <strong className="note-author-stamp">{note.author || 'IO'}</strong>
                           <span className="note-time-text">({note.timestamp})</span>
                         </div>
                         <div className="note-badges-row">
