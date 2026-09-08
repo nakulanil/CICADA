@@ -195,7 +195,7 @@ def extract_fir_date(
     # Fallback around the FIR header.
     header_match = re.search(
         r"Year\s*:\s*FIR\s*No\.?\s*Date"
-        r".{0,200}?",
+        r".{0,200}",
         text,
         flags=re.IGNORECASE | re.DOTALL,
     )
