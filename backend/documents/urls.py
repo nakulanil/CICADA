@@ -5,6 +5,7 @@ from .views import (
     DocumentDownloadView,
     DocumentIntegrityView,
     DocumentSearchView,
+    DocumentProcessingResultView,
 )
 
 urlpatterns = [
@@ -36,5 +37,11 @@ urlpatterns = [
         "<uuid:document_id>/",
         DocumentDetailView.as_view(),
         name="document-detail",
+    ),
+
+    path(
+        "version/<uuid:version_id>/processing-result/",
+        DocumentProcessingResultView.as_view(),
+        name="document-processing-result",
     ),
 ]

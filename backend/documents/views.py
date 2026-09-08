@@ -12,9 +12,12 @@ from django.http import FileResponse
 from cases.models import CaseMember
 from audit.models import AuditLog
 
-from .models import Document, DocumentVersion, DocumentProcessingResult
-from .services.document_processor import process_document
 from .utils import calculate_file_hash
+
+from cases.permissions import (
+    has_case_permission,
+    get_permitted_case_roles,
+)
 
 
 # Allowed file types for legal documents
@@ -36,18 +39,6 @@ ALLOWED_MIME_TYPES = {
     "image/jpeg",
     "image/png",
 }
-
-
-def get_case_membership(case, user):
-    """
-    Return the active case membership for a user.
-    Returns None if the user is not an active member.
-    """
-    return CaseMember.objects.filter(
-        case=case,
-        user=user,
-        is_active=True,
-    ).first()
 
 
 def get_file_extension(filename):
@@ -151,12 +142,11 @@ class DocumentUploadView(APIView):
             )
 
         # Check case membership
-        membership = get_case_membership(
+        if not has_case_permission(
+            request.user,
             document.case,
-            request.user
-        )
-
-        if not membership:
+            "upload",
+        ):
             create_access_denied_log(
                 request.user,
                 "Document",
@@ -287,12 +277,11 @@ class DocumentDetailView(APIView):
             )
 
         # Check case membership
-        membership = get_case_membership(
+        if not has_case_permission(
+            request.user,
             document.case,
-            request.user
-        )
-
-        if not membership:
+            "view",
+        ):
             create_access_denied_log(
                 request.user,
                 "Document",
@@ -302,7 +291,7 @@ class DocumentDetailView(APIView):
             )
 
             return Response(
-                {"error": "You do not have access to this case."},
+                {"error": "You do not have permission to view this document."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -351,6 +340,91 @@ class DocumentDetailView(APIView):
             "versions": version_data,
         })
 
+class DocumentProcessingResultView(APIView):
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, version_id):
+
+        try:
+            document_version = (
+                DocumentVersion.objects
+                .select_related("document__case")
+                .get(id=version_id)
+            )
+        except DocumentVersion.DoesNotExist:
+            return Response(
+                {"error": "Document version not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        document = document_version.document
+
+        # Check case-level view permission
+        if not has_case_permission(
+            request.user,
+            document.case,
+            "view",
+        ):
+            create_access_denied_log(
+                request.user,
+                "DocumentProcessingResult",
+                document_version.id,
+                (
+                    "Processing result access denied for "
+                    f"document: {document.title}"
+                ),
+                request,
+            )
+
+            return Response(
+                {
+                    "error": (
+                        "You do not have permission to view "
+                        "this processing result."
+                    )
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        try:
+            processing_result = (
+                DocumentProcessingResult.objects
+                .get(document_version=document_version)
+            )
+        except DocumentProcessingResult.DoesNotExist:
+            return Response(
+                {"error": "Processing result not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(
+            {
+                "id": str(processing_result.id),
+                "document_version": str(
+                    processing_result.document_version.id
+                ),
+                "status": processing_result.status,
+                "extraction_method": processing_result.extraction_method,
+                "page_count": processing_result.page_count,
+                "raw_text": processing_result.raw_text,
+                "cleaned_text": processing_result.cleaned_text,
+                "average_ocr_confidence": (
+                    processing_result.average_ocr_confidence
+                ),
+                "fir_number": processing_result.fir_number,
+                "fir_date": processing_result.fir_date,
+                "fir_year": processing_result.fir_year,
+                "district": processing_result.district,
+                "police_station": processing_result.police_station,
+                "suspected_offence": processing_result.suspected_offence,
+                "sections": processing_result.sections,
+                "error_message": processing_result.error_message,
+                "processed_at": processing_result.processed_at,
+            },
+            status=status.HTTP_200_OK
+        )
 
 class DocumentDownloadView(APIView):
 
@@ -372,12 +446,11 @@ class DocumentDownloadView(APIView):
             )
 
         # Check case membership
-        membership = get_case_membership(
+        if not has_case_permission(
+            request.user,
             version.document.case,
-            request.user
-        )
-
-        if not membership:
+            "download",
+        ):
             create_access_denied_log(
                 request.user,
                 "DocumentVersion",
@@ -390,7 +463,7 @@ class DocumentDownloadView(APIView):
             )
 
             return Response(
-                {"error": "You do not have access to this case."},
+                {"error": "You do not have permission to download this document."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -444,12 +517,11 @@ class DocumentIntegrityView(APIView):
             )
 
         # Check case membership
-        membership = get_case_membership(
+        if not has_case_permission(
+            request.user,
             version.document.case,
-            request.user
-        )
-
-        if not membership:
+            "verify",
+        ):
             create_access_denied_log(
                 request.user,
                 "DocumentVersion",
@@ -462,7 +534,7 @@ class DocumentIntegrityView(APIView):
             )
 
             return Response(
-                {"error": "You do not have access to this case."},
+                {"error": "You do not have permission to verify this document."},
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -530,11 +602,14 @@ class DocumentSearchView(APIView):
         ).strip()
 
         # Only return documents from active case memberships
+        allowed_roles = get_permitted_case_roles("view")
+
         documents = (
             Document.objects
             .filter(
                 case__members__user=request.user,
                 case__members__is_active=True,
+                case__members__case_role__in=allowed_roles,
             )
             .select_related("case", "created_by")
             .distinct()
