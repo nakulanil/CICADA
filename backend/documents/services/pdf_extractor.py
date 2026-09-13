@@ -210,86 +210,89 @@ def extract_text_from_pdf(
     pdf = pdfium.PdfDocument(
         file_path
     )
+    try:
 
-    page_results: list[dict[str, Any]] = []
-    text_parts: list[str] = []
+        page_results: list[dict[str, Any]] = []
+        text_parts: list[str] = []
 
-    # ---------------------------------------------------------
-    # Process every page using BOTH corresponding page objects
-    # ---------------------------------------------------------
+        # ---------------------------------------------------------
+        # Process every page using BOTH corresponding page objects
+        # ---------------------------------------------------------
 
-    for index, pypdf_page in enumerate(
-        reader.pages
-    ):
-        pdfium_page = pdf[index]
+        for index, pypdf_page in enumerate(
+            reader.pages
+        ):
+            pdfium_page = pdf[index]
 
-        result = extract_page(
-            pypdf_page=pypdf_page,
-            pdfium_page=pdfium_page,
-            page_number=index + 1,
-            min_native_characters=min_native_characters,
-            language=language,
-        )
+            result = extract_page(
+                pypdf_page=pypdf_page,
+                pdfium_page=pdfium_page,
+                page_number=index + 1,
+                min_native_characters=min_native_characters,
+                language=language,
+            )
 
-        page_results.append(result)
-        text_parts.append(
-            result["text"]
-        )
+            page_results.append(result)
+            text_parts.append(
+                result["text"]
+            )
 
-    # ---------------------------------------------------------
-    # Determine overall extraction method
-    # ---------------------------------------------------------
+        # ---------------------------------------------------------
+        # Determine overall extraction method
+        # ---------------------------------------------------------
 
-    methods = {
-        page["method"]
-        for page in page_results
-    }
-
-    if methods == {"native"}:
-        overall_method = "native"
-
-    elif methods == {"ocr"}:
-        overall_method = "ocr"
-
-    else:
-        overall_method = "mixed"
-
-    # ---------------------------------------------------------
-    # Calculate average OCR confidence
-    # ---------------------------------------------------------
-
-    confidences = [
-        page["ocr_confidence"]
-        for page in page_results
-        if page.get("ocr_confidence") is not None
-    ]
-
-    if confidences:
-        average_ocr_confidence = round(
-            sum(confidences) / len(confidences),
-            2,
-        )
-    else:
-        average_ocr_confidence = None
-
-    # ---------------------------------------------------------
-    # Combine all page text
-    # ---------------------------------------------------------
-
-    combined_text = "\n\n".join(
-        text_parts
-    )
-
-    return {
-        "text": combined_text,
-        "method": overall_method,
-        "page_count": len(page_results),
-        "pages": page_results,
-        "native_text_len": sum(
-            page["native_text_length"]
+        methods = {
+            page["method"]
             for page in page_results
-        ),
-        "average_ocr_confidence": (
-            average_ocr_confidence
-        ),
-    }
+        }
+
+        if methods == {"native"}:
+            overall_method = "native"
+
+        elif methods == {"ocr"}:
+            overall_method = "ocr"
+
+        else:
+            overall_method = "mixed"
+
+        # ---------------------------------------------------------
+        # Calculate average OCR confidence
+        # ---------------------------------------------------------
+
+        confidences = [
+            page["ocr_confidence"]
+            for page in page_results
+            if page.get("ocr_confidence") is not None
+        ]
+
+        if confidences:
+            average_ocr_confidence = round(
+                sum(confidences) / len(confidences),
+                2,
+            )
+        else:
+            average_ocr_confidence = None
+
+        # ---------------------------------------------------------
+        # Combine all page text
+        # ---------------------------------------------------------
+
+        combined_text = "\n\n".join(
+            text_parts
+        )
+
+        return {
+            "text": combined_text,
+            "method": overall_method,
+            "page_count": len(page_results),
+            "pages": page_results,
+            "native_text_len": sum(
+                page["native_text_length"]
+                for page in page_results
+            ),
+            "average_ocr_confidence": (
+                average_ocr_confidence
+            ),
+        }
+    finally:
+        pdf.close()

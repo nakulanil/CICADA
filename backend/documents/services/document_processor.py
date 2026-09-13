@@ -25,7 +25,7 @@ from .metadata_extractor import extract_fir_metadata
 
 
 SUPPORTED_EXTENSIONS = {
-    ".pdf",
+    ".pdf", ".jpg", ".jpeg", ".png"
 }
 
 
@@ -49,13 +49,41 @@ def process_document(
     if extension not in SUPPORTED_EXTENSIONS:
         raise ValueError(
             f"Unsupported file type: {extension}. "
-            "Currently supported: PDF"
+            "Currently supported: PDF, JPG, JPEG, PNG"
         )
 
-    extraction = extract_text_from_pdf(
-        str(path),
-        language=language,
-    )
+    if extension == ".pdf":
+        extraction = extract_text_from_pdf(
+            str(path),
+            language=language,
+        )
+    else:
+        # Image file — go straight to OCR, no native-text step possible
+        from PIL import Image
+        from .ocr import extract_text_with_confidence
+
+        with Image.open(path) as image:
+            ocr_result = extract_text_with_confidence(
+                image,
+                lang=language,
+                preprocess=True,
+                psm=3,
+            )
+        extraction = {
+            "text": ocr_result["text"],
+            "page_count": 1,
+            "method": "ocr",
+            "native_text_len": 0,
+            "average_ocr_confidence": ocr_result["average_confidence"],
+            "pages": [
+            {
+                "page_number": 1,
+                "text": ocr_result["text"],
+                "method": "ocr",
+                "ocr_confidence": ocr_result["average_confidence"],
+            }
+            ],
+        }
 
     raw_text = extraction["text"]
 

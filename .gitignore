@@ -45,4 +45,7 @@ Thumbs.db
 
 # Secrets / credentials
 *.pem
-*.keyscratch/
+*.key
+
+# Local testing / scratch files
+scratch/
