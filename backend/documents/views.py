@@ -1,3 +1,6 @@
+import shutil
+import tempfile
+
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -12,11 +15,6 @@ from django.http import FileResponse
 from cases.models import CaseMember
 from audit.models import AuditLog
 
-from .models import (
-    Document,
-    DocumentVersion,
-    DocumentProcessingResult,
-)
 from .utils import calculate_file_hash
 
 from cases.permissions import (
@@ -196,6 +194,51 @@ class DocumentUploadView(APIView):
                 file_size=file.size,
                 mime_type=file.content_type or "application/octet-stream",
                 uploaded_by=request.user,
+            )
+
+        # Process document and store extraction result
+        try:
+            with tempfile.NamedTemporaryFile(
+                suffix=get_file_extension(document_version.original_filename),
+                delete=True,
+            ) as temp_file:
+                with document_version.file_path.open("rb") as stored_file:
+                    shutil.copyfileobj(stored_file, temp_file)
+
+                temp_file.flush()
+
+                result = process_document(
+                    temp_file.name
+                )
+
+            metadata = result.get("metadata", {})
+            DocumentProcessingResult.objects.create(
+                document_version=document_version,
+                status="COMPLETED",
+                extraction_method=result.get("extraction_method"),
+                page_count=result.get("page_count"),
+                raw_text=result.get("raw_text", ""),
+                cleaned_text=result.get("cleaned_text", ""),
+                average_ocr_confidence=result.get(
+                    "average_ocr_confidence"
+                ),
+                fir_number=metadata.get("fir_number"),
+                fir_date=metadata.get("fir_date"),
+                fir_year=(
+                    str(metadata["year"])
+                    if metadata.get("year") is not None
+                    else None
+                ),
+                district=metadata.get("district"),
+                police_station=metadata.get("police_station"),
+                suspected_offence=metadata.get("suspected_offence"),
+                sections=metadata.get("sections", []),
+            )
+        except Exception as exc:
+            DocumentProcessingResult.objects.create(
+                document_version=document_version,
+                status="FAILED",
+                error_message=str(exc),
             )
 
         # Create audit log for successful upload
