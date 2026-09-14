@@ -6,6 +6,7 @@ from .views import (
     DocumentIntegrityView,
     DocumentSearchView,
     DocumentProcessingResultView,
+    DocumentShareView,
 )
 
 urlpatterns = [
@@ -31,6 +32,12 @@ urlpatterns = [
         "search/",
         DocumentSearchView.as_view(),
         name="document-search",
+    ),
+
+    path(
+        "<uuid:document_id>/share/",
+        DocumentShareView.as_view(),
+        name="document-share",
     ),
 
     path(
