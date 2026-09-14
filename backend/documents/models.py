@@ -356,4 +356,63 @@ class CustodyEvent(models.Model):
     def __str__(self):
         return f"{self.evidence.evidence_number} - {self.action}"
 
-    
+class DocumentAccess(models.Model):
+
+    class Permission(models.TextChoices):
+        VIEW = "VIEW", "View"
+        DOWNLOAD = "DOWNLOAD", "Download"
+        EDIT = "EDIT", "Edit"
+        SHARE = "SHARE", "Share"
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+
+    document = models.ForeignKey(
+        Document,
+        on_delete=models.CASCADE,
+        related_name="access_permissions",
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="document_permissions",
+    )
+
+    permission = models.CharField(
+        max_length=20,
+        choices=Permission.choices,
+    )
+
+    granted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="granted_document_permissions",
+    )
+
+    granted_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["document", "user", "permission"],
+                name="unique_document_user_permission",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user} - {self.document} ({self.permission})"

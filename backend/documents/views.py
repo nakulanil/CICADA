@@ -4,18 +4,21 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from .access import has_document_permission
+from accounts.models import User
+
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 from django.http import FileResponse
 
-from cases.models import CaseMember
 from audit.models import AuditLog
 
 from .models import (
     Document,
     DocumentVersion,
     DocumentProcessingResult,
+    DocumentAccess,
 )
 from .utils import calculate_file_hash
 
@@ -47,9 +50,6 @@ ALLOWED_MIME_TYPES = {
 
 
 def get_file_extension(filename):
-    """
-    Return the lowercase file extension.
-    """
     filename = filename.lower()
 
     if "." not in filename:
@@ -59,10 +59,6 @@ def get_file_extension(filename):
 
 
 def validate_uploaded_file(file):
-    """
-    Validate basic file properties before storing the file.
-    No file-size limit is applied.
-    """
 
     if file.size == 0:
         return "Uploaded file is empty."
@@ -90,9 +86,6 @@ def create_access_denied_log(
     description,
     request
 ):
-    """
-    Create a standard ACCESS_DENIED audit log.
-    """
     AuditLog.objects.create(
         user=user,
         action=AuditLog.Action.ACCESS_DENIED,
@@ -125,7 +118,6 @@ class DocumentUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Validate uploaded file
         validation_error = validate_uploaded_file(file)
 
         if validation_error:
@@ -146,7 +138,6 @@ class DocumentUploadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Check case membership
         if not has_case_permission(
             request.user,
             document.case,
@@ -165,13 +156,12 @@ class DocumentUploadView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Calculate SHA-256 hash
+        # Calculate SHA-256
         file_hash = calculate_file_hash(file)
 
-        # Reset file position after hashing
+        # Reset file after hashing
         file.seek(0)
 
-        # Create the next version safely
         with transaction.atomic():
 
             latest_version = (
@@ -198,7 +188,6 @@ class DocumentUploadView(APIView):
                 uploaded_by=request.user,
             )
 
-        # Create audit log for successful upload
         AuditLog.objects.create(
             user=request.user,
             action=AuditLog.Action.UPLOAD,
@@ -246,8 +235,15 @@ class DocumentDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Check case membership
-        if not has_case_permission(
+        # Check DocumentAccess VIEW permission
+        document_access = has_document_permission(
+            request.user,
+            document,
+            "VIEW",
+        )
+
+        # Fall back to existing case permission
+        if not document_access and not has_case_permission(
             request.user,
             document.case,
             "view",
@@ -265,7 +261,6 @@ class DocumentDetailView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Create audit log for successful document view
         AuditLog.objects.create(
             user=request.user,
             action=AuditLog.Action.READ,
@@ -310,6 +305,7 @@ class DocumentDetailView(APIView):
             "versions": version_data,
         })
 
+
 class DocumentProcessingResultView(APIView):
 
     authentication_classes = [BasicAuthentication]
@@ -331,7 +327,6 @@ class DocumentProcessingResultView(APIView):
 
         document = document_version.document
 
-        # Check case-level view permission
         if not has_case_permission(
             request.user,
             document.case,
@@ -396,6 +391,7 @@ class DocumentProcessingResultView(APIView):
             status=status.HTTP_200_OK
         )
 
+
 class DocumentDownloadView(APIView):
 
     authentication_classes = [BasicAuthentication]
@@ -415,8 +411,15 @@ class DocumentDownloadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Check case membership
-        if not has_case_permission(
+        # Check DocumentAccess DOWNLOAD permission
+        document_access = has_document_permission(
+            request.user,
+            version.document,
+            "DOWNLOAD",
+        )
+
+        # Fall back to existing case permission
+        if not document_access and not has_case_permission(
             request.user,
             version.document.case,
             "download",
@@ -433,7 +436,10 @@ class DocumentDownloadView(APIView):
             )
 
             return Response(
-                {"error": "You do not have permission to download this document."},
+                {
+                    "error":
+                    "You do not have permission to download this document."
+                },
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -443,7 +449,6 @@ class DocumentDownloadView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Create audit log for successful download
         AuditLog.objects.create(
             user=request.user,
             action=AuditLog.Action.DOWNLOAD,
@@ -486,7 +491,6 @@ class DocumentIntegrityView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Check case membership
         if not has_case_permission(
             request.user,
             version.document.case,
@@ -504,7 +508,10 @@ class DocumentIntegrityView(APIView):
             )
 
             return Response(
-                {"error": "You do not have permission to verify this document."},
+                {
+                    "error":
+                    "You do not have permission to verify this document."
+                },
                 status=status.HTTP_403_FORBIDDEN
             )
 
@@ -514,7 +521,6 @@ class DocumentIntegrityView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Calculate hash of the currently stored file
         with version.file_path.open("rb") as file:
             current_hash = calculate_file_hash(file)
 
@@ -525,7 +531,6 @@ class DocumentIntegrityView(APIView):
         else:
             integrity = "ALTERED"
 
-        # Create audit log
         AuditLog.objects.create(
             user=request.user,
             action=AuditLog.Action.READ,
@@ -571,7 +576,6 @@ class DocumentSearchView(APIView):
             ""
         ).strip()
 
-        # Only return documents from active case memberships
         allowed_roles = get_permitted_case_roles("view")
 
         documents = (
@@ -617,7 +621,6 @@ class DocumentSearchView(APIView):
                 ).isoformat(),
             })
 
-        # Audit document search
         AuditLog.objects.create(
             user=request.user,
             action=AuditLog.Action.READ,
@@ -637,3 +640,114 @@ class DocumentSearchView(APIView):
             "count": len(results),
             "results": results,
         })
+
+class DocumentShareView(APIView):
+
+    authentication_classes = [BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, document_id):
+
+        try:
+            document = (
+                Document.objects
+                .select_related("case")
+                .get(id=document_id)
+            )
+        except Document.DoesNotExist:
+            return Response(
+                {"error": "Document not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # User must have SHARE permission
+        if not has_document_permission(
+            request.user,
+            document,
+            "SHARE",
+        ):
+            create_access_denied_log(
+                request.user,
+                "Document",
+                document.id,
+                f"Share access denied for document: {document.title}",
+                request,
+            )
+
+            return Response(
+                {
+                    "error":
+                    "You do not have permission to share this document."
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        username = request.data.get("username")
+        permission = request.data.get("permission")
+
+        if not username:
+            return Response(
+                {"error": "username is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if permission not in [
+            DocumentAccess.Permission.VIEW,
+            DocumentAccess.Permission.DOWNLOAD,
+            DocumentAccess.Permission.EDIT,
+        ]:
+            return Response(
+                {"error": "Invalid permission."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "User not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        access, created = DocumentAccess.objects.get_or_create(
+            document=document,
+            user=user,
+            permission=permission,
+            defaults={
+                "granted_by": request.user,
+            },
+        )
+
+        if not created:
+            access.is_active = True
+            access.granted_by = request.user
+            access.save(
+                update_fields=[
+                    "is_active",
+                    "granted_by",
+                ]
+            )
+
+        AuditLog.objects.create(
+            user=request.user,
+            action=AuditLog.Action.READ,
+            resource_type="DocumentAccess",
+            resource_id=str(access.id),
+            description=(
+                f"Granted {permission} permission on "
+                f"document: {document.title} "
+                f"to user: {user.username}"
+            ),
+            ip_address=request.META.get("REMOTE_ADDR"),
+        )
+
+        return Response(
+            {
+                "message": "Document permission granted successfully.",
+                "document_id": str(document.id),
+                "user": user.username,
+                "permission": permission,
+                "is_active": access.is_active,
+            },
+            status=status.HTTP_201_CREATED
+        )
