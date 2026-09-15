@@ -11,9 +11,11 @@ function Metric({ label, value, detail }) {
 }
 
 function AttentionItem({ type, title, meta, action, onClick }) {
+  const icon = type === 'fir' ? 'F' : type === 'review' ? 'R' : '!'
+
   return (
     <button type="button" className="sho-attention-item" onClick={onClick}>
-      <span className={`sho-attention-icon sho-attention-${type}`}>{type === 'fir' ? 'F' : type === 'assignment' ? 'A' : type === 'review' ? 'R' : '!'}</span>
+      <span className={`sho-attention-icon sho-attention-${type}`}>{icon}</span>
       <span className="sho-attention-copy">
         <strong>{title}</strong>
         <span>{meta}</span>
@@ -31,9 +33,22 @@ function CaseRow({ caseItem, onSelect }) {
         <small>{caseItem.title}</small>
       </span>
       <span className={`sho-status sho-status-${(caseItem.progressStatus || '').toLowerCase().replace(/\s+/g, '-')}`}>
-        {caseItem.progressStatus}
+        {caseItem.progressStatus || 'Open'}
       </span>
       <span className="sho-case-arrow">→</span>
+    </button>
+  )
+}
+
+function QuickAction({ title, description, icon, onClick, primary = false }) {
+  return (
+    <button type="button" className={`sho-action-card ${primary ? 'sho-action-primary' : ''}`} onClick={onClick}>
+      <span className="sho-action-icon">{icon}</span>
+      <span className="sho-action-copy">
+        <strong>{title}</strong>
+        <small>{description}</small>
+      </span>
+      <span className="sho-action-arrow">→</span>
     </button>
   )
 }
@@ -42,7 +57,7 @@ export default function SHOWorkspace({ cases = [], onSelectCase }) {
   const ownCases = cases.filter((item) => item.caseType === 'own')
   const activeCases = cases.filter((item) => ['Active', 'Under Investigation'].includes(item.progressStatus))
   const inCourt = cases.filter((item) => item.progressStatus === 'In Court')
-  const attentionCases = cases.filter((item) => item.priority === 'Critical' || item.priority === 'Urgent')
+  const priorityCases = cases.filter((item) => item.priority === 'Critical' || item.priority === 'Urgent')
 
   return (
     <section className="sho-workspace">
@@ -50,7 +65,7 @@ export default function SHOWorkspace({ cases = [], onSelectCase }) {
         <div>
           <p className="sho-eyebrow">STATION COMMAND</p>
           <h1>Good morning, Inspector.</h1>
-          <p>Here’s what needs your attention at the station.</p>
+          <p>Here’s the current picture of your station.</p>
         </div>
         <div className="sho-date">Today · Station overview</div>
       </div>
@@ -58,11 +73,11 @@ export default function SHOWorkspace({ cases = [], onSelectCase }) {
       <div className="sho-metrics">
         <Metric label="Active cases" value={activeCases.length} detail="Across this station" />
         <Metric label="FIRs to review" value={Math.min(3, cases.length)} detail="Require your attention" />
-        <Metric label="IO assignments" value={Math.min(2, cases.length)} detail="Awaiting assignment" />
-        <Metric label="Priority cases" value={attentionCases.length} detail="Critical / urgent" />
+        <Metric label="Priority cases" value={priorityCases.length} detail="Critical / urgent" />
+        <Metric label="In court" value={inCourt.length} detail="Current station cases" />
       </div>
 
-      <div className="sho-primary-grid">
+      <div className="sho-command-grid">
         <section className="sho-panel sho-attention-panel">
           <div className="sho-panel-heading">
             <div>
@@ -76,20 +91,20 @@ export default function SHOWorkspace({ cases = [], onSelectCase }) {
             <AttentionItem
               type="fir"
               title="FIR awaiting review"
-              meta="Newly registered case · review before assignment"
+              meta="Newly registered case · review before proceeding"
               action="Review"
-            />
-            <AttentionItem
-              type="assignment"
-              title="Case awaiting IO assignment"
-              meta="Assignment required from station command"
-              action="Assign IO"
             />
             <AttentionItem
               type="review"
               title="Investigation requires review"
-              meta={`${attentionCases[0]?.firNumber || 'Station case'} · priority investigation`}
+              meta={`${priorityCases[0]?.firNumber || 'Station case'} · priority investigation`}
               action="Review"
+            />
+            <AttentionItem
+              type="alert"
+              title="Investigation delayed"
+              meta="A station investigation has not been updated recently"
+              action="Open case"
             />
           </div>
         </section>
@@ -97,52 +112,94 @@ export default function SHOWorkspace({ cases = [], onSelectCase }) {
         <section className="sho-panel sho-actions-panel">
           <div className="sho-panel-heading">
             <div>
-              <p className="sho-section-kicker">SHORTCUTS</p>
+              <p className="sho-section-kicker">START WORK</p>
               <h2>Quick actions</h2>
             </div>
           </div>
+
           <div className="sho-actions">
-            <button type="button" onClick={() => alert('FIR review workflow will be connected here.')}>Review FIRs <span>→</span></button>
-            <button type="button" onClick={() => alert('IO assignment workflow will be connected here.')}>Assign IO <span>→</span></button>
-            <button type="button" onClick={() => alert('Case creation workflow will be connected here.')}>Register FIR <span>→</span></button>
-            <button type="button" onClick={() => alert('Station reports will be connected here.')}>Station reports <span>→</span></button>
+            <QuickAction
+              primary
+              icon="＋"
+              title="Register FIR"
+              description="Record a new cognizable offence"
+            />
+            <QuickAction
+              icon="□"
+              title="Open Case"
+              description="Open an existing case dossier"
+            />
+            <QuickAction
+              icon="▣"
+              title="Station Reports"
+              description="View station and investigation reports"
+            />
+            <QuickAction
+              icon="⌕"
+              title="Search Records"
+              description="Find FIRs, cases and evidence"
+            />
           </div>
+
+          <p className="sho-action-note">IO assignment belongs to the FIR / case-opening flow, so it appears there when required rather than as a separate dashboard task.</p>
         </section>
       </div>
 
-      <div className="sho-secondary-grid">
-        <section className="sho-panel">
+      <div className="sho-cases-header">
+        <div>
+          <p className="sho-section-kicker">CASE WORKSPACE</p>
+          <h2>Cases</h2>
+        </div>
+        <p>Keep your personal workload separate from the station-wide case list.</p>
+      </div>
+
+      <div className="sho-cases-grid">
+        <section className="sho-panel sho-case-panel">
           <div className="sho-panel-heading">
             <div>
               <p className="sho-section-kicker">PERSONAL</p>
-              <h2>My cases</h2>
+              <h2>My cases <span>{ownCases.length}</span></h2>
             </div>
             <button type="button" className="sho-text-button">View all →</button>
           </div>
           <div className="sho-case-list">
-            {ownCases.slice(0, 4).map((item) => (
+            {ownCases.slice(0, 5).map((item) => (
               <CaseRow key={item.id} caseItem={item} onSelect={onSelectCase} />
             ))}
             {!ownCases.length && <p className="sho-empty">No cases are currently assigned to you.</p>}
           </div>
         </section>
 
-        <section className="sho-panel">
+        <section className="sho-panel sho-case-panel">
           <div className="sho-panel-heading">
             <div>
               <p className="sho-section-kicker">STATION</p>
-              <h2>Investigation overview</h2>
+              <h2>Station cases <span>{cases.length}</span></h2>
             </div>
             <button type="button" className="sho-text-button">View all →</button>
           </div>
-          <div className="sho-overview-list">
-            <div><span>Active / investigation</span><strong>{activeCases.length}</strong></div>
-            <div><span>In court</span><strong>{inCourt.length}</strong></div>
-            <div><span>Priority cases</span><strong>{attentionCases.length}</strong></div>
+          <div className="sho-case-list">
+            {cases.slice(0, 5).map((item) => (
+              <CaseRow key={item.id} caseItem={item} onSelect={onSelectCase} />
+            ))}
+            {!cases.length && <p className="sho-empty">No station cases are available.</p>}
           </div>
-          <div className="sho-overview-note">Use the investigation view for case-level supervision instead of displaying every case here.</div>
         </section>
       </div>
+
+      <section className="sho-panel sho-station-summary">
+        <div className="sho-panel-heading">
+          <div>
+            <p className="sho-section-kicker">STATION SNAPSHOT</p>
+            <h2>Investigation overview</h2>
+          </div>
+        </div>
+        <div className="sho-overview-list">
+          <div><span>Active / investigation</span><strong>{activeCases.length}</strong></div>
+          <div><span>In court</span><strong>{inCourt.length}</strong></div>
+          <div><span>Priority cases</span><strong>{priorityCases.length}</strong></div>
+        </div>
+      </section>
     </section>
   )
 }
