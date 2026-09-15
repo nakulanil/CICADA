@@ -3,22 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { masterCaseDatabase, getTimeGreeting } from '../data/demsData'
 import DashboardHeader from '../components/DashboardHeader'
 import OfficerGreetingRibbon from '../components/OfficerGreetingRibbon'
-import SearchAndFilterBar from '../components/SearchAndFilterBar'
-import CaseFeedGrid from '../components/CaseFeedGrid'
+import SHOWorkspace from '../components/SHOWorkspace'
 import CaseDetailsWithNotepadModal from '../components/CaseDetailsWithNotepadModal'
 import ProfileViewerModal from '../components/ProfileViewerModal'
 import Footer from '../components/Footer'
 
-/**
- * DEMS Master Dashboard (Figma Page 1 Frame 5, 6, & 7)
- * Modular architecture orchestrating:
- * - Master Top Dark Bar (Frame 5)
- * - Officer Greeting Ribbon (Frame 5)
- * - Full-Width Search & Folder-Style Tabs (Frame 5)
- * - Dual Column Case Grid (Frame 5)
- * - Expanded 3-Column Case Dossier & Live Notepad (Frame 6)
- * - Officer Profile & Settings Modal (Frame 7)
- */
 export default function DashboardPage() {
   const navigate = useNavigate()
   const greeting = getTimeGreeting()
@@ -30,6 +19,7 @@ export default function DashboardPage() {
     } catch (err) {
       console.warn('LocalStorage parse error:', err)
     }
+
     return {
       username: 'sho_rajesh',
       name: 'Rajesh Kumar Sharma',
@@ -39,48 +29,39 @@ export default function DashboardPage() {
       orgName: 'Police Department',
       roleId: 'police_sho',
       roleName: 'Station House Officer (SHO)',
-      cadre: 'Supervisory Station In-Charge',
+      cadre: 'Station In-Charge',
       station: 'Central Police Station, Division I',
     }
   })
 
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
-
-  // Master Cases State with persisted notes
+  const [selectedCaseId, setSelectedCaseId] = useState(null)
   const [casesList, setCasesList] = useState(() => {
     try {
       const storedNotes = JSON.parse(localStorage.getItem('dems_case_notes_db') || '{}')
-      return masterCaseDatabase.map((c) => {
-        if (storedNotes[c.id]) {
-          return { ...c, initialNotes: storedNotes[c.id] }
-        }
-        return c
-      })
+      return masterCaseDatabase.map((caseItem) =>
+        storedNotes[caseItem.id]
+          ? { ...caseItem, initialNotes: storedNotes[caseItem.id] }
+          : caseItem,
+      )
     } catch (err) {
       return masterCaseDatabase
     }
   })
 
-  // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState('')
-  const [progressFilter, setProgressFilter] = useState('All')
-  const [selectedCaseId, setSelectedCaseId] = useState(null)
-
-  const selectedCase = casesList.find((c) => c.id === selectedCaseId) || null
+  const selectedCase = casesList.find((caseItem) => caseItem.id === selectedCaseId) || null
 
   const handleAddNote = (caseId, newNote) => {
-    setCasesList((prev) => {
-      const updated = prev.map((c) => {
-        if (c.id === caseId) {
-          const updatedNotes = [newNote, ...(c.initialNotes || [])]
-          return { ...c, initialNotes: updatedNotes }
-        }
-        return c
-      })
+    setCasesList((previous) => {
+      const updated = previous.map((caseItem) =>
+        caseItem.id === caseId
+          ? { ...caseItem, initialNotes: [newNote, ...(caseItem.initialNotes || [])] }
+          : caseItem,
+      )
 
       try {
         const storedNotes = JSON.parse(localStorage.getItem('dems_case_notes_db') || '{}')
-        const targetCase = updated.find((c) => c.id === caseId)
+        const targetCase = updated.find((caseItem) => caseItem.id === caseId)
         storedNotes[caseId] = targetCase?.initialNotes || []
         localStorage.setItem('dems_case_notes_db', JSON.stringify(storedNotes))
       } catch (err) {
@@ -92,18 +73,16 @@ export default function DashboardPage() {
   }
 
   const handleDeleteNote = (caseId, noteId) => {
-    setCasesList((prev) => {
-      const updated = prev.map((c) => {
-        if (c.id === caseId) {
-          const updatedNotes = (c.initialNotes || []).filter((n) => n.id !== noteId)
-          return { ...c, initialNotes: updatedNotes }
-        }
-        return c
-      })
+    setCasesList((previous) => {
+      const updated = previous.map((caseItem) =>
+        caseItem.id === caseId
+          ? { ...caseItem, initialNotes: (caseItem.initialNotes || []).filter((note) => note.id !== noteId) }
+          : caseItem,
+      )
 
       try {
         const storedNotes = JSON.parse(localStorage.getItem('dems_case_notes_db') || '{}')
-        const targetCase = updated.find((c) => c.id === caseId)
+        const targetCase = updated.find((caseItem) => caseItem.id === caseId)
         storedNotes[caseId] = targetCase?.initialNotes || []
         localStorage.setItem('dems_case_notes_db', JSON.stringify(storedNotes))
       } catch (err) {
@@ -119,48 +98,14 @@ export default function DashboardPage() {
     navigate('/')
   }
 
-  // Filter cases by search and progress status
-  const filteredCases = casesList.filter((caseItem) => {
-    if (progressFilter !== 'All' && caseItem.progressStatus !== progressFilter) {
-      return false
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim()
-      const matchFir = caseItem.firNumber.toLowerCase().includes(q)
-      const matchTitle = caseItem.title.toLowerCase().includes(q)
-      const matchSec = caseItem.sections.toLowerCase().includes(q)
-      const matchComp = (caseItem.complainant || '').toLowerCase().includes(q)
-      const matchSum = (caseItem.summary || '').toLowerCase().includes(q)
-      const matchDel = (caseItem.delegatedBy || '').toLowerCase().includes(q)
-      const matchDir = (caseItem.directive || '').toLowerCase().includes(q)
-
-      return matchFir || matchTitle || matchSec || matchComp || matchSum || matchDel || matchDir
-    }
-
-    return true
-  })
-
-  const ownCases = filteredCases.filter((c) => c.caseType === 'own')
-  const delegatedCases = filteredCases.filter((c) => c.caseType === 'delegated')
-
-  const progressOptions = ['All', 'Active', 'Under Investigation', 'In Court', 'Closed', 'Archived']
-
-  const getProgressCount = (status) => {
-    if (status === 'All') return casesList.length
-    return casesList.filter((c) => c.progressStatus === status).length
-  }
-
   return (
-    <div className="dems-dashboard-page-root">
-      {/* 1. Master Top Bar (Frame 5) */}
+    <div className="dems-dashboard-page-root sho-dashboard-root">
       <DashboardHeader
         currentUser={currentUser}
         onOpenProfile={() => setIsProfileModalOpen(true)}
         onLogout={handleLogout}
       />
 
-      {/* 2. Officer Greeting Ribbon (Frame 5) */}
       <OfficerGreetingRibbon
         currentUser={currentUser}
         greeting={greeting}
@@ -168,46 +113,23 @@ export default function DashboardPage() {
         onLogout={handleLogout}
       />
 
-      {/* 3. Main Full-Width Dashboard Content */}
-      <main className="dash-full-container dashboard-main-content-flow">
-        {/* Search Bar & Progress Filter Tabs */}
-        <SearchAndFilterBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onClearSearch={() => setSearchQuery('')}
-          progressFilter={progressFilter}
-          onProgressFilterChange={setProgressFilter}
-          progressOptions={progressOptions}
-          getProgressCount={getProgressCount}
-          totalCasesCount={casesList.length}
-          filteredCasesCount={filteredCases.length}
-        />
-
-        {/* Dual Column Case Feed Grid (Frame 5) */}
-        <CaseFeedGrid
-          ownCases={ownCases}
-          delegatedCases={delegatedCases}
-          onSelectCase={(c) => setSelectedCaseId(c.id)}
-          onResetFilters={() => {
-            setSearchQuery('')
-            setProgressFilter('All')
-          }}
-          hasActiveFilters={searchQuery.trim() !== '' || progressFilter !== 'All'}
+      <main className="sho-dashboard-main">
+        <SHOWorkspace
+          cases={casesList}
+          onSelectCase={(caseItem) => setSelectedCaseId(caseItem.id)}
         />
       </main>
 
-      {/* 4. Expanded Case Details Dossier with Left Sidebar & Right Notepad (Frame 6) */}
       <CaseDetailsWithNotepadModal
         selectedCase={selectedCase}
-        allCases={filteredCases}
+        allCases={casesList}
         currentUser={currentUser}
         onClose={() => setSelectedCaseId(null)}
-        onSelectCase={(c) => setSelectedCaseId(c.id)}
+        onSelectCase={(caseItem) => setSelectedCaseId(caseItem.id)}
         onAddNote={handleAddNote}
         onDeleteNote={handleDeleteNote}
       />
 
-      {/* 5. Officer Profile & Account Settings Dialog (Frame 7) */}
       <ProfileViewerModal
         isOpen={isProfileModalOpen}
         currentUser={currentUser}
@@ -215,7 +137,6 @@ export default function DashboardPage() {
         onUpdateUser={(updated) => setCurrentUser(updated)}
       />
 
-      {/* 6. Universal Government Footer */}
       <Footer />
     </div>
   )
