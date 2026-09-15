@@ -7,6 +7,7 @@ import SHOWorkspace from '../components/SHOWorkspace'
 import CaseDetailsWithNotepadModal from '../components/CaseDetailsWithNotepadModal'
 import ProfileViewerModal from '../components/ProfileViewerModal'
 import Footer from '../components/Footer'
+import '../styles/sho-dashboard.css'
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -58,7 +59,6 @@ export default function DashboardPage() {
           ? { ...caseItem, initialNotes: [newNote, ...(caseItem.initialNotes || [])] }
           : caseItem,
       )
-
       try {
         const storedNotes = JSON.parse(localStorage.getItem('dems_case_notes_db') || '{}')
         const targetCase = updated.find((caseItem) => caseItem.id === caseId)
@@ -67,7 +67,6 @@ export default function DashboardPage() {
       } catch (err) {
         console.warn('Save notes error:', err)
       }
-
       return updated
     })
   }
@@ -79,7 +78,6 @@ export default function DashboardPage() {
           ? { ...caseItem, initialNotes: (caseItem.initialNotes || []).filter((note) => note.id !== noteId) }
           : caseItem,
       )
-
       try {
         const storedNotes = JSON.parse(localStorage.getItem('dems_case_notes_db') || '{}')
         const targetCase = updated.find((caseItem) => caseItem.id === caseId)
@@ -88,7 +86,6 @@ export default function DashboardPage() {
       } catch (err) {
         console.warn('Delete note error:', err)
       }
-
       return updated
     })
   }
