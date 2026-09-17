@@ -223,13 +223,27 @@ def extract_district(
     Extract district from FIR header.
     """
 
-    # --------------------------------------------------------
-    # Layout 1:
-    #
-    # District:
-    # New Delhi
-    # --------------------------------------------------------
+    # Layout:
+    # District: PS: Year: FIR No.: Date
+    # Bhopal CBI/SPE, ACB, Bhopal 2026 ...
 
+    match = re.search(
+        r"District\s*:\s*PS\s*:\s*Year\s*:"
+        r"\s*FIR\s*No\.?\s*:\s*Date"
+        r"\s*\n?\s*"
+        r"([A-Za-z][A-Za-z .'-]*?)"
+        r"\s+CBI\s*/",
+        text,
+        flags=re.IGNORECASE,
+    )
+
+    if match:
+        value = clean_value(match.group(1))
+
+        if value:
+            return value
+
+    # Fallback: District: on a separate line.
     match = re.search(
         r"\bDistrict\s*:\s*\n\s*([^\n]+)",
         text,
@@ -237,41 +251,12 @@ def extract_district(
     )
 
     if match:
-
-        value = clean_value(
-            match.group(1)
-        )
-
-        if value:
-            return value
-
-    # --------------------------------------------------------
-    # Layout 2:
-    #
-    # District PS Year
-    # CBI, SC-1, New Delhi 2026
-    # --------------------------------------------------------
-
-    match = re.search(
-        r"District\s+PS\s+Year"
-        r"\s+"
-        r"CBI,\s*[^,\n]+,\s*"
-        r"(.+?)\s+20\d{2}",
-        text,
-        flags=re.IGNORECASE,
-    )
-
-    if match:
-
-        value = clean_value(
-            match.group(1)
-        )
+        value = clean_value(match.group(1))
 
         if value:
             return value
 
     return None
-
 
 # ============================================================
 # POLICE STATION
@@ -281,29 +266,37 @@ def extract_police_station(
     text: str,
 ) -> Optional[str]:
     """
-    Extract CBI police station / branch code.
-
-    Examples found in our FIR samples:
-
-        CBI, AC-III
-        CBI, SC-1
-
-    pypdf does not always preserve the visual position of
-    the PS field, so we search for the CBI branch identifier
-    directly instead of relying only on text immediately after
-    'PS:'.
+    Extract police station / branch from FIR header.
     """
 
-    # --------------------------------------------------------
-    # Look for CBI branch identifiers.
-    #
-    # Examples:
-    #   CBI, AC-III
-    #   CBI, SC-1
-    #   CBI, _AC-Ill   <- font/extraction noise
-    # --------------------------------------------------------
+    # Layout:
+    # District: PS: Year: FIR No.: Date
+    # Bhopal CBI/SPE, ACB, Bhopal 2026 ...
 
-    matches = re.findall(
+    match = re.search(
+        r"\bCBI\s*/\s*SPE\s*,\s*"
+        r"([A-Za-z-]+)"
+        r"(?:\s*,\s*([A-Za-z]+))?",
+        text,
+        flags=re.IGNORECASE,
+    )
+
+    if match:
+        branch = match.group(1).strip()
+        city = match.group(2)
+
+        value = f"CBI/SPE, {branch}"
+
+        if city:
+            value += f", {city.strip()}"
+
+        return clean_value(value)
+
+    # Fallback for formats such as:
+    # CBI, AC-III
+    # CBI, SC-1
+
+    match = re.search(
         r"\bCBI\s*,?\s*_?\s*"
         r"(AC|SC)"
         r"\s*[-]?\s*"
@@ -312,18 +305,13 @@ def extract_police_station(
         flags=re.IGNORECASE,
     )
 
-    for branch_type, branch_number in matches:
+    if match:
+        branch_type = match.group(1).upper()
+        branch_number = match.group(2).upper()
 
-        branch_type = branch_type.upper()
-
-        branch_number = branch_number.upper()
-
-        # Common pypdf font extraction issue:
-        # "Ill" may represent "III".
         replacements = {
             "ILL": "III",
             "IL": "II",
-            "I": "I",
         }
 
         branch_number = replacements.get(
@@ -333,7 +321,7 @@ def extract_police_station(
 
         return f"CBI, {branch_type}-{branch_number}"
 
-    return None
+    return None 
 
 
 # ============================================================
@@ -525,21 +513,11 @@ def extract_sections(
     Extract legal sections from the FIR header.
 
     Supports:
-        61 (2) r/w 318(4)
-        204
-        319
+        Section: 61(2)
+        Section: 7
+        Sections: 204, 319
         66-D
-
-    The parser is intentionally conservative because FIR
-    documents contain many unrelated numbers.
     """
-
-    # --------------------------------------------------------
-    # Limit ourselves to the FIR header.
-    #
-    # Everything after "Suspected Offence" belongs to the
-    # rest of the FIR and contains many unrelated numbers.
-    # --------------------------------------------------------
 
     offence_marker = re.search(
         r"\bSuspected\s+Offence\b",
@@ -550,99 +528,37 @@ def extract_sections(
     if offence_marker:
         header = text[:offence_marker.start()]
     else:
-        header = text[:2000]
+        header = text[:2500]
 
     results: list[str] = []
 
-    # --------------------------------------------------------
-    # 1. Compound legal section
-    #
-    # Example:
-    #
-    # 61 (2) r/w 318(4)
-    #
-    # We look for this FIRST.
-    # --------------------------------------------------------
-
-    compound_match = re.search(
-        r"\b"
+    # Match singular or plural section labels.
+    section_matches = re.finditer(
+        r"\bSections?\s*:\s*"
         r"(\d{1,3})"
-        r"\s*\(\s*([A-Za-z0-9]+)\s*\)"
-        r"\s*r/w\s*"
-        r"(\d{1,3})"
-        r"\s*\(\s*([A-Za-z0-9]+)\s*\)",
+        r"(?:\s*\(\s*([A-Za-z0-9]+)\s*\))?"
+        r"(?:\s*-\s*([A-Za-z]))?",
         header,
         flags=re.IGNORECASE,
     )
 
-    if compound_match:
+    for match in section_matches:
+        number = match.group(1)
+        subsection = match.group(2)
+        suffix = match.group(3)
 
-        section = (
-            f"{compound_match.group(1)}"
-            f"({compound_match.group(2)}) "
-            f"r/w "
-            f"{compound_match.group(3)}"
-            f"({compound_match.group(4)})"
-        )
+        if subsection:
+            section = f"{number}({subsection})"
+        elif suffix:
+            section = f"{number}-{suffix.upper()}"
+        else:
+            section = number
 
-        results.append(section)
-
-        # Important:
-        # Do NOT extract its components separately.
-        return results
-
-    # --------------------------------------------------------
-    # 2. Standalone sections
-    #
-    # Example:
-    #
-    # 204
-    # 319
-    # 66-D
-    # --------------------------------------------------------
-
-    # Look only after "Sections" labels.
-    section_labels = list(
-        re.finditer(
-            r"\bSections\b",
-            header,
-            flags=re.IGNORECASE,
-        )
-    )
-
-    for label in section_labels:
-
-        # Small area after each section label.
-        nearby = header[
-            label.end():
-            label.end() + 100
-        ]
-
-        candidates = re.findall(
-            r"\b\d{2,3}(?:\s*-\s*[A-Za-z])?\b",
-            nearby,
-            flags=re.IGNORECASE,
-        )
-
-        for candidate in candidates:
-
-            normalized = re.sub(
-                r"\s+",
-                "",
-                candidate,
-            )
-
-            # Ignore years.
-            if (
-                len(normalized) == 4
-                and normalized.startswith("20")
-            ):
-                continue
-
-            if normalized not in results:
-                results.append(normalized)
+        if section not in results:
+            results.append(section)
 
     return results
+
 # ============================================================
 # MAIN ENTRY POINT
 # ============================================================

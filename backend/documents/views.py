@@ -1,3 +1,5 @@
+from .services.document_processor import process_document
+
 import shutil
 import tempfile
 
@@ -21,6 +23,8 @@ from cases.permissions import (
     has_case_permission,
     get_permitted_case_roles,
 )
+
+from .models import Document, DocumentVersion, DocumentProcessingResult
 
 
 # Allowed file types for legal documents
