@@ -1,4 +1,4 @@
-```python
+
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -793,4 +793,4 @@ class DocumentShareView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
-```
+
