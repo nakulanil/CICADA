@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -191,10 +194,40 @@ class DocumentUploadView(APIView):
             )
 
         # Process document and store extraction result
+        #
+        # The document is stored in MinIO/S3.
+        # MinIO/S3 does not provide a normal filesystem path,
+        # so document_version.file_path.path cannot be used.
+        #
+        # We temporarily copy the same MinIO file to the local
+        # filesystem, run the existing M5 processor, store the
+        # processing result, and then delete the temporary file.
+
+        temp_path = None
+
         try:
-            result = process_document(
-                document_version.file_path.path
-            )
+            # Get original file extension
+            suffix = os.path.splitext(
+                document_version.original_filename
+            )[1]
+
+            # Open the same document directly from MinIO/S3
+            with document_version.file_path.storage.open(
+                document_version.file_path.name,
+                "rb"
+            ) as source_file:
+
+                # Create temporary local file
+                with tempfile.NamedTemporaryFile(
+                    suffix=suffix,
+                    delete=False
+                ) as temp_file:
+
+                    temp_file.write(source_file.read())
+                    temp_path = temp_file.name
+
+            # Run the existing M5 document processor
+            result = process_document(temp_path)
 
             metadata = result.get("metadata", {})
 
@@ -227,6 +260,12 @@ class DocumentUploadView(APIView):
                 status="FAILED",
                 error_message=str(exc),
             )
+
+        finally:
+            # Delete only the temporary local copy.
+            # The original file in MinIO remains untouched.
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path)
 
         # Create audit log for successful upload
         AuditLog.objects.create(
@@ -793,4 +832,3 @@ class DocumentShareView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
-
