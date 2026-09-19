@@ -1,3 +1,4 @@
+```python
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -21,6 +22,7 @@ from .models import (
     DocumentAccess,
 )
 from .utils import calculate_file_hash
+from .services.document_processor import process_document
 
 from cases.permissions import (
     has_case_permission,
@@ -188,6 +190,45 @@ class DocumentUploadView(APIView):
                 uploaded_by=request.user,
             )
 
+        # Process document and store extraction result
+        try:
+            result = process_document(
+                document_version.file_path.path
+            )
+
+            metadata = result.get("metadata", {})
+
+            DocumentProcessingResult.objects.create(
+                document_version=document_version,
+                status="COMPLETED",
+                extraction_method=result.get("extraction_method"),
+                page_count=result.get("page_count"),
+                raw_text=result.get("raw_text", ""),
+                cleaned_text=result.get("cleaned_text", ""),
+                average_ocr_confidence=result.get(
+                    "average_ocr_confidence"
+                ),
+                fir_number=metadata.get("fir_number"),
+                fir_date=metadata.get("fir_date"),
+                fir_year=(
+                    str(metadata["year"])
+                    if metadata.get("year") is not None
+                    else None
+                ),
+                district=metadata.get("district"),
+                police_station=metadata.get("police_station"),
+                suspected_offence=metadata.get("suspected_offence"),
+                sections=metadata.get("sections", []),
+            )
+
+        except Exception as exc:
+            DocumentProcessingResult.objects.create(
+                document_version=document_version,
+                status="FAILED",
+                error_message=str(exc),
+            )
+
+        # Create audit log for successful upload
         AuditLog.objects.create(
             user=request.user,
             action=AuditLog.Action.UPLOAD,
@@ -641,6 +682,7 @@ class DocumentSearchView(APIView):
             "results": results,
         })
 
+
 class DocumentShareView(APIView):
 
     authentication_classes = [BasicAuthentication]
@@ -751,3 +793,4 @@ class DocumentShareView(APIView):
             },
             status=status.HTTP_201_CREATED
         )
+```
