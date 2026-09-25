@@ -6,15 +6,15 @@ import React from 'react'
  * - Introductory paragraph
  * - Dual High-Contrast Navy #0E3366 cards: "Our Mission" & "Built for Trust"
  */
-export default function AboutSection() {
+export default function AboutSection({ copy }) {
   return (
     <section id="about-section" className="about-extended-section">
       <div className="site-container">
         {/* Section Heading in Government Ochre Gold */}
         <div className="section-header-block">
-          <h2 className="section-heading-ochre">ABOUT US</h2>
+          <h2 className="section-heading-ochre">{copy.title}</h2>
           <p className="section-lead-paragraph">
-            e-SAKSHYA serves as a secure, tamper-evident digital repository for law enforcement, forensics, prosecution, and courts to share, collaborate, authenticate, and manage digital and physical evidence.
+            {copy.lead}
           </p>
         </div>
 
@@ -22,17 +22,17 @@ export default function AboutSection() {
         <div className="dual-navy-cards-grid">
           {/* Card 1: Our Mission */}
           <div className="navy-feature-card">
-            <h3 className="navy-card-title">Our Mission</h3>
+            <h3 className="navy-card-title">{copy.missionTitle}</h3>
             <p className="navy-card-body">
-              Empower police investigating officers, forensic examiners, prosecutors, and judges with a unified, tamper-evident digital custody ecosystem that accelerates case disposal, eliminates evidence tampering, and upholds constitutional due process.
+              {copy.mission}
             </p>
           </div>
 
           {/* Card 2: Built for Trust */}
           <div className="navy-feature-card">
-            <h3 className="navy-card-title">Built for Trust</h3>
+            <h3 className="navy-card-title">{copy.trustTitle}</h3>
             <p className="navy-card-body">
-              Engineered with zero-trust role-based access, SHA-256 bit-stream integrity verification, automated digital seal certificates, and permanent tamper-proof ledger logging compliant with statutory evidence admissibility standards.
+              {copy.trust}
             </p>
           </div>
         </div>

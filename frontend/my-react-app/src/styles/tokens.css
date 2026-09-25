@@ -1,0 +1,27 @@
+:root {
+  --color-navy-dark: #0a2540;
+  --color-navy-primary: #0e3366;
+  --color-slate-blue: #17375e;
+  --color-ochre-gold: #b37d2e;
+  --color-ochre-gold-light: #c5832b;
+  --color-green-active: #10b981;
+  --color-green-active-bg: #ecfdf5;
+  --color-amber-priority: #f59e0b;
+  --color-amber-priority-bg: #fef3c7;
+  --color-bg-page: #f4f6f9;
+  --color-bg-card: #ffffff;
+  --color-input-bg: #f1f5f9;
+  --color-input-border: #cbd5e1;
+  --color-input-border-focus: #0e3366;
+  --color-text-primary: #0f172a;
+  --color-text-muted: #64748b;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

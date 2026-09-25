@@ -11,6 +11,7 @@ import NationalEmblem from './NationalEmblem'
 export default function Navbar({
   activePage = 'home',
   onNavClick,
+  copy = { home: 'HOME', about: 'ABOUT US', contact: 'CONTACT US' },
 }) {
   const navigate = useNavigate()
 
@@ -33,7 +34,7 @@ export default function Navbar({
         <div className="site-container nav-flex-wrapper">
           {/* Brand Logo & Authority */}
           <Link to="/" className="brand-logo-group" title="e-SAKSHYA - Home">
-            <NationalEmblem size={82} color="#0f172a" />
+            <NationalEmblem size={64} color="#0f172a" />
             <div className="brand-identity-text">
               <span className="brand-primary-acronym">e-SAKSHYA</span>
               <span className="brand-authority-title">MINISTRY OF HOME AFFAIRS</span>
@@ -47,21 +48,21 @@ export default function Navbar({
               className={`nav-menu-link ${activePage === 'home' ? 'active-nav' : ''}`}
               onClick={() => handleScrollTo('hero-section')}
             >
-              HOME <span className="chevron-down">⌵</span>
+              {copy.home} <span className="chevron-down">⌵</span>
             </button>
             <button
               type="button"
               className={`nav-menu-link ${activePage === 'about' ? 'active-nav' : ''}`}
               onClick={() => handleScrollTo('about-section')}
             >
-              ABOUT US <span className="chevron-down">⌵</span>
+              {copy.about} <span className="chevron-down">⌵</span>
             </button>
             <button
               type="button"
               className="nav-menu-link link-highlight-gold"
               onClick={() => handleScrollTo('contact-section')}
             >
-              CONTACT US <span className="chevron-down">⌵</span>
+              {copy.contact} <span className="chevron-down">⌵</span>
             </button>
           </div>
 

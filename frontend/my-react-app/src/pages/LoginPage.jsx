@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { organizations } from '../data/demsData'
+import { authenticatePrototypeUser } from '../utils/auth'
 import secretariatHeroImg from '../assets/secretariat_hero.jpg'
 
 /**
@@ -13,74 +14,41 @@ export default function LoginPage() {
   const [searchParams] = useSearchParams()
 
   const prefillUsername = searchParams.get('username') || ''
-  const [username, setUsername] = useState(prefillUsername || 'sho_rajesh')
-  const [password, setPassword] = useState('Password@123')
+  const [username, setUsername] = useState(prefillUsername)
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(true)
   const [errorMsg, setErrorMsg] = useState('')
+  const usernameRef = useRef(null)
+  const passwordRef = useRef(null)
+
+  useEffect(() => {
+    if (prefillUsername) {
+      passwordRef.current?.focus()
+    }
+  }, [prefillUsername])
 
   const handleLoginSubmit = (e) => {
     e.preventDefault()
     setErrorMsg('')
 
-    if (!username.trim() || !password) {
+    if (!username.trim()) {
       setErrorMsg('Please enter both username and password.')
+      usernameRef.current?.focus()
       return
     }
 
-    let loggedUser = null
-
-    for (const org of organizations) {
-      const match = org.roles.find(
-        (r) =>
-          r.defaultUsername.toLowerCase() === username.trim().toLowerCase() ||
-          r.defaultEmail.toLowerCase() === username.trim().toLowerCase()
-      )
-      if (match) {
-        loggedUser = {
-          username: match.defaultUsername,
-          name: match.defaultName,
-          email: match.defaultEmail,
-          pno: match.pno,
-          orgId: org.id,
-          orgName: org.name,
-          roleId: match.id,
-          roleName: match.name,
-          cadre: match.cadre,
-          station: match.station,
-        }
-        break
-      }
+    if (!password) {
+      setErrorMsg('Please enter both username and password.')
+      passwordRef.current?.focus()
+      return
     }
 
-    if (!loggedUser) {
-      try {
-        const regUsers = JSON.parse(localStorage.getItem('dems_registered_users') || '[]')
-        const found = regUsers.find(
-          (u) =>
-            u.username.toLowerCase() === username.trim().toLowerCase() ||
-            u.email.toLowerCase() === username.trim().toLowerCase()
-        )
-        if (found) {
-          loggedUser = found
-        }
-      } catch (err) {
-        console.warn('Lookup error:', err)
-      }
-    }
+    const loggedUser = authenticatePrototypeUser(username, password)
 
     if (!loggedUser) {
-      loggedUser = {
-        username: username.trim(),
-        name: username.trim().toUpperCase(),
-        email: `${username.trim()}@police.gov.in`,
-        pno: `POL-${Math.floor(100000 + Math.random() * 900000)}`,
-        orgId: 'police',
-        orgName: 'Police Department (Law Enforcement)',
-        roleId: 'police_sho',
-        roleName: 'Station House Officer (SHO)',
-        cadre: 'Supervisory Station In-Charge',
-        station: 'Central Police Station, Division I',
-      }
+      setErrorMsg('Invalid username/email or password.')
+      return
     }
 
     localStorage.setItem('dems_active_user', JSON.stringify(loggedUser))
@@ -109,12 +77,16 @@ export default function LoginPage() {
         <div className="auth-modal-card login-standalone-card">
           <div className="auth-modal-header navy-header">
             <div className="auth-title-left">
-              <span className="auth-key-icon">🔑</span>
+              <svg className="auth-title-svg" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M7.5 10V7a4.5 4.5 0 0 1 9 0v3" />
+                <rect x="4.5" y="10" width="15" height="10" rx="1.5" />
+                <path d="M12 14v2" />
+              </svg>
               <span className="auth-modal-title">OFFICER LOGIN</span>
             </div>
           </div>
 
-          <form className="auth-modal-body" onSubmit={handleLoginSubmit}>
+          <form className="auth-modal-body" onSubmit={handleLoginSubmit} noValidate>
             <p className="auth-welcome-sub">
               Sign in with your official credentials to access the secure evidence vault.
             </p>
@@ -132,7 +104,7 @@ export default function LoginPage() {
                 placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                required
+                ref={usernameRef}
                 autoFocus
               />
             </div>
@@ -141,15 +113,29 @@ export default function LoginPage() {
               <label htmlFor="login-password" className="field-label">
                 Password: <span className="req">*</span>
               </label>
-              <input
-                id="login-password"
-                type="password"
-                className="input-text"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="password-field-wrapper">
+                <input
+                  id="login-password"
+                  ref={passwordRef}
+                  type={showPassword ? 'text' : 'password'}
+                  className="input-text"
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d={showPassword ? 'M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12ZM3 3l18 18' : 'M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z'} />
+                    {!showPassword && <circle cx="12" cy="12" r="2.5" />}
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="auth-remember-row">
