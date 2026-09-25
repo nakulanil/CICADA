@@ -1,6 +1,9 @@
 import React from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
-import './App.css'
+import './styles/shared.css'
+import './styles/landing.css'
+import './styles/auth.css'
+import './styles/modals.css'
 
 // Modular Page Components
 import LandingPage from './pages/LandingPage'
@@ -30,6 +33,11 @@ function App() {
 
       {/* 4. Case Management & Investigation Notepad Dashboard */}
       <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/dashboard/fir-inbox" element={<DashboardPage />} />
+      <Route path="/dashboard/my-cases" element={<DashboardPage />} />
+      <Route path="/dashboard/my-cases/:caseId" element={<DashboardPage />} />
+      <Route path="/dashboard/station-cases" element={<DashboardPage />} />
+      <Route path="/dashboard/search" element={<DashboardPage />} />
 
       {/* Fallback route */}
       <Route path="*" element={<Navigate to="/" replace />} />

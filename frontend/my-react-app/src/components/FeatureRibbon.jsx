@@ -4,12 +4,12 @@ import React from 'react'
  * Floating 4-Feature Ribbon Card (Exact Figma Page 1 Frame 1)
  * White elevated card with blue icons and exact labels
  */
-export default function FeatureRibbon() {
+export default function FeatureRibbon({ copy }) {
   const features = [
     {
       id: 'coc',
-      title: 'Chain of Custody',
-      desc: 'Tamper-proof audit logs',
+      title: copy[0][0],
+      desc: copy[0][1],
       svgIcon: (
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e3366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="2" y1="20" x2="22" y2="20"></line>
@@ -24,8 +24,8 @@ export default function FeatureRibbon() {
     },
     {
       id: 'logs',
-      title: 'Automated Reporting & Logs',
-      desc: 'Standardized compliance exports',
+      title: copy[1][0],
+      desc: copy[1][1],
       svgIcon: (
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e3366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -37,8 +37,8 @@ export default function FeatureRibbon() {
     },
     {
       id: 'tracking',
-      title: 'Real-Time Evidence Tracking',
-      desc: 'Live custody status & exhibits',
+      title: copy[2][0],
+      desc: copy[2][1],
       svgIcon: (
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e3366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
@@ -50,8 +50,8 @@ export default function FeatureRibbon() {
     },
     {
       id: 'rbac',
-      title: 'Role-Based Access Control',
-      desc: 'Zero-trust multi-agency clearance',
+      title: copy[3][0],
+      desc: copy[3][1],
       svgIcon: (
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0e3366" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
