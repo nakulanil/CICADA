@@ -1,426 +1,256 @@
-# 🏛️ CICADA — System Architecture
+# CEDAR — System Architecture
 
-> **Secure Digital Evidence & Case Management System**
->
-> An inter-agency digital platform for structured case management, evidence tracking, document management, access control, integrity verification and auditable investigation workflows.
+## 1. Architecture Overview
 
----
+**CEDAR** is a secure digital evidence and case management platform designed to organize the complete lifecycle of criminal cases, documents, physical/digital evidence, custody transfers and audit records across authorized stakeholders.
 
-<div align="center">
-
-### 🔐 Secure by Design · 📁 Case-Centric · 🧾 Auditable · 👮 Role-Aware
-
-</div>
-
----
-
-# 1. Architecture Overview
-
-CICADA follows a layered full-stack architecture built around one core principle:
-
-> **Every important record should remain connected to its case, its responsible users, its permissions and its history.**
+The architecture is centered around a **case-centric data model**:
 
 ```text
-┌──────────────────────────────────────────────────────────────────────┐
-│                         PRESENTATION LAYER                           │
-│                                                                      │
-│                    React + Vite Frontend                             │
-│                                                                      │
-│   Landing │ Authentication │ Dashboard │ Case Dossier │ Profile     │
-│   Search  │ Evidence       │ Documents │ Notes        │ RBAC UI      │
-└──────────────────────────────┬───────────────────────────────────────┘
-                               │
-                               │ HTTP / REST
-                               ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                           API LAYER                                  │
-│                                                                      │
-│                    Django REST Framework                             │
-│                                                                      │
-│   Authentication │ Authorization │ Validation │ Business Logic       │
-│   Case APIs      │ Document APIs │ Evidence APIs │ Audit APIs        │
-└──────────────────────────────┬───────────────────────────────────────┘
-                               │
-                 ┌─────────────┴──────────────┐
-                 │                            │
-                 ▼                            ▼
-┌──────────────────────────┐      ┌───────────────────────────────────┐
-│     APPLICATION LAYER    │      │          STORAGE LAYER            │
-│                          │      │                                   │
-│ Django Domain Models     │      │ PostgreSQL                        │
-│                          │      │   └─ Structured application data  │
-│ Accounts                 │      │                                   │
-│ Cases                    │      │ MinIO / S3-compatible storage     │
-│ Persons                  │      │   └─ Documents & digital files    │
-│ Documents                │      │                                   │
-│ Evidence                 │      │ SHA-256 integrity metadata       │
-│ Audit                    │      │                                   │
-└─────────────┬────────────┘      └───────────────────────────────────┘
-              │
-              ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                         SECURITY & AUDIT                             │
-│                                                                      │
-│        Identity → Role → Case Membership → Permissions              │
-│                              ↓                                       │
-│                         AuditLog                                     │
-│                              ↓                                       │
-│                   Traceable system activity                         │
-└──────────────────────────────────────────────────────────────────────┘
+CASE
+ │
+ ├── PERSONS
+ │
+ ├── CASE MEMBERS
+ │
+ ├── DOCUMENTS
+ │      └── DOCUMENT VERSIONS
+ │
+ ├── EVIDENCE
+ │      └── CHAIN OF CUSTODY
+ │
+ └── AUDIT TRAIL
 ```
+
+The system is intended to support multiple organizational categories such as Police, Forensic Laboratory, Prosecution and Court while maintaining accountability for access and changes.
 
 ---
 
-# 2. Design Philosophy
+# 2. Design Principles
 
-CICADA is structured around five architectural principles.
+CEDAR is designed around the following principles:
 
-## 2.1 Case-Centric Data Model
-
-A case is the central unit around which investigation information is organized.
-
-```text
-                         ┌─────────────┐
-                         │    CASE     │
-                         └──────┬──────┘
-                                │
-        ┌───────────────┬───────┼────────┬───────────────┐
-        ▼               ▼       ▼        ▼               ▼
-     Persons         Members  Documents Evidence       Audit
-```
-
-This keeps people, documents, evidence and responsibilities connected to the case they belong to.
-
----
-
-## 2.2 Least-Privilege Access
-
-Users are associated with:
-
-```text
-Organization
-      │
-      ▼
-     User
-      │
-      ├──── Role
-      │
-      └──── Case Membership
-```
-
-Access can therefore be represented at multiple levels:
-
-* Organization-level identity
-* Role-level permissions
-* Case-level responsibility
-* Document-level permissions
-
----
-
-## 2.3 Evidence Traceability
-
-Evidence is not treated as an ordinary file.
-
-Instead, the system maintains:
-
-```text
-Evidence
-   │
-   ├── Collection information
-   ├── Current custodian
-   ├── Current status
-   │
-   └── Custody Events
-           │
-           ├── Collected
-           ├── Transferred
-           ├── Received
-           ├── Submitted
-           └── Released
-```
-
-This provides a chronological history of evidence custody.
-
----
-
-## 2.4 Versioned Documents
-
-Documents are separated from their individual file versions.
-
-```text
-Document
-   │
-   ├── Version 1
-   ├── Version 2
-   ├── Version 3
-   └── ...
-```
-
-Each version can store:
-
-* Original filename
-* File path
-* File size
-* MIME type
-* SHA-256 hash
-* Uploading user
-* Upload timestamp
-
----
-
-## 2.5 Auditability
-
-Security-sensitive activity is designed to leave an audit trail.
-
-```text
-USER ACTION
-     │
-     ▼
-┌─────────────┐
-│ Application │
-└──────┬──────┘
-       │
-       ▼
-   AuditLog
-       │
-       ├── User
-       ├── Action
-       ├── Resource
-       ├── Description
-       ├── IP Address
-       └── Timestamp
-```
+- **Case-centric organization** — documents, people and evidence remain connected to their case.
+- **Role-aware access** — users belong to an organization and role.
+- **Traceability** — important actions can be recorded through audit logs.
+- **Evidence integrity** — SHA-256 hashes provide a basis for integrity verification.
+- **Version preservation** — document versions are stored independently rather than silently overwritten.
+- **Chain of custody** — evidence transfers are represented as explicit events.
+- **Separation of metadata and files** — PostgreSQL stores structured metadata while object storage is intended for digital files.
+- **Prototype transparency** — implemented functionality is distinguished from planned integrations.
 
 ---
 
 # 3. High-Level Component Architecture
 
 ```text
-                              INTERNET
-                                  │
-                                  ▼
-                         ┌─────────────────┐
-                         │   Web Browser   │
-                         └────────┬────────┘
-                                  │
-                                  ▼
-                    ┌─────────────────────────┐
-                    │ React + Vite Frontend   │
-                    │                         │
-                    │ • Landing Page          │
-                    │ • Login / Registration  │
-                    │ • Dashboard             │
-                    │ • Case Dossier          │
-                    │ • Evidence UI            │
-                    │ • Document UI            │
-                    │ • Profile / Notes        │
-                    └────────────┬────────────┘
-                                 │
-                                 │ REST / HTTP
-                                 ▼
-                    ┌─────────────────────────┐
-                    │ Django Application       │
-                    │                         │
-                    │ Django + DRF             │
-                    │                         │
-                    │ ┌─────────────────────┐ │
-                    │ │ Accounts            │ │
-                    │ │ Cases               │ │
-                    │ │ Persons             │ │
-                    │ │ Documents           │ │
-                    │ │ Audit               │ │
-                    │ └─────────────────────┘ │
-                    └───────┬─────────┬───────┘
-                            │         │
-                ┌───────────┘         └────────────┐
-                ▼                                  ▼
-       ┌──────────────────┐             ┌──────────────────┐
-       │   PostgreSQL     │             │ MinIO / S3       │
-       │                  │             │                  │
-       │ Users            │             │ Digital Files    │
-       │ Cases            │             │ Documents        │
-       │ Persons          │             │ Evidence Files   │
-       │ Metadata         │             │                  │
-       │ Audit Records    │             │ Object Storage   │
-       └──────────────────┘             └──────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                            CEDAR                                 │
+│          Secure Digital Evidence & Case Management               │
+├──────────────────────────────────────────────────────────────────┤
+│                            USERS                                 │
+│                                                                  │
+│  Police       Forensic       Prosecution       Court             │
+│    │              │               │              │               │
+├────┴──────────────┴───────────────┴──────────────┴────────────────┤
+│                       REACT FRONTEND                             │
+│                                                                  │
+│  Landing • Login • Dashboard • Case Search • Case Dossier        │
+│  Evidence • Officer Profile • Role-specific Interfaces           │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│                     DJANGO / DRF BACKEND                         │
+│                                                                  │
+│ Accounts • Cases • Persons • Documents • Audit                   │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│                       DATA LAYER                                 │
+│                                                                  │
+│                         PostgreSQL                               │
+│                                                                  │
+│ Users ─ Cases ─ Persons ─ Documents ─ Evidence ─ Custody Events  │
+│                     │                         │                  │
+│                     └──────── Audit Logs ─────┘                  │
+│                                                                  │
+├──────────────────────────────────────────────────────────────────┤
+│                      OBJECT STORAGE                              │
+│                                                                  │
+│                     MinIO / S3-compatible                        │
+│                                                                  │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 # 4. Frontend Architecture
 
-The frontend uses:
-
-```text
-React
-  │
-  ├── Vite
-  ├── React Router
-  └── CSS
-```
-
-Major UI areas include:
+The frontend is implemented using React and Vite.
 
 ```text
 frontend/
 └── my-react-app/
-    │
-    ├── pages/
-    │   ├── Landing
-    │   ├── Login
-    │   ├── Registration
-    │   ├── Dashboard
-    │   ├── Case Dossier
-    │   └── Profile
-    │
-    ├── components/
-    │   ├── Navigation
-    │   ├── Dashboard Components
-    │   ├── Case Components
-    │   └── UI Components
-    │
-    ├── data/
-    │   └── Prototype / UI Data
-    │
-    └── ...
+    └── src/
+        ├── components/
+        ├── pages/
+        ├── data/
+        ├── assets/
+        └── main.jsx
 ```
 
-The frontend is responsible for:
+The prototype includes interfaces for:
 
-* User interaction
-* Navigation
-* Case visualization
-* Evidence/document interfaces
-* Role-specific UI
-* Search and filtering
-* Case notes
-* Presentation of security indicators
+- Landing page
+- Registration
+- Login
+- Dashboard
+- Case search and filtering
+- Case dossier
+- Evidence information
+- Officer profile
+- Role-specific police workflows
+- Investigator notes
 
-The backend remains responsible for authoritative persistence, authorization and security enforcement.
+The current prototype contains some local/static demonstration data. Full server-backed functionality is part of the target integration architecture.
 
 ---
 
 # 5. Backend Architecture
 
-The backend is divided into domain-specific Django applications.
+The backend is organized as a Django project with separate domain applications.
 
 ```text
 backend/
-│
-├── config/
-│   ├── settings.py
-│   ├── urls.py
-│   ├── asgi.py
-│   └── wsgi.py
-│
 ├── accounts/
-│   └── User / Organization / Role
-│
 ├── cases/
-│   └── Case / CaseMember
-│
 ├── persons/
-│   └── Person / CasePerson
-│
 ├── documents/
-│   └── Document / Evidence / Processing / Access
-│
 ├── audit/
-│   └── AuditLog
-│
-└── manage.py
+└── config/
 ```
 
-This separation keeps identity, cases, people, evidence and auditing as distinct application domains.
+### Accounts
+
+Responsible for:
+
+- Organizations
+- Roles
+- Users
+- Organization membership
+- Role association
+
+### Cases
+
+Responsible for:
+
+- Case records
+- Case status
+- Case members
+- Case responsibilities
+
+### Persons
+
+Responsible for:
+
+- Person records
+- Case-person relationships
+- Involvement types
+
+### Documents
+
+Responsible for:
+
+- Logical documents
+- Document versions
+- File metadata
+- SHA-256 hashes
+- Document processing metadata
+- Evidence
+- Custody events
+- Document access permissions
+
+### Audit
+
+Responsible for:
+
+- Security-sensitive activity records
+- User/action/resource tracking
+- Access-denied events
+- Timestamps and IP metadata
 
 ---
 
-# 6. Identity & Access Architecture
+# 6. Identity & Organization Architecture
 
-## Identity hierarchy
+CEDAR models users through organizations and roles.
 
 ```text
 Organization
-      │
-      ├──────────────┐
-      │              │
-      ▼              ▼
-    Roles           Users
-                     │
-                     ▼
-              Case Membership
-                     │
-                     ▼
-              Case-specific role
+     │
+     ├── Police
+     ├── Forensic Laboratory
+     ├── Prosecution
+     └── Court
+
+Role
+     │
+     └── User
 ```
 
-### Organization
+The custom user model associates users with an organization and role.
 
-The current model supports:
+This provides the foundation for:
 
-* Police
-* Forensic Laboratory
-* Prosecution
-* Court
+```text
+Authentication
+      ↓
+Organization Context
+      ↓
+Role Context
+      ↓
+Resource Authorization
+```
 
-### User
-
-The custom Django `User` model extends Django's `AbstractUser`.
-
-A user can be associated with:
-
-* Organization
-* Role
-
-### Role
-
-Roles provide the foundation for role-based access control.
+The current frontend authentication is primarily prototype-level; complete server-side authentication and authorization enforcement remain part of the target architecture.
 
 ---
 
 # 7. Case Management Architecture
 
-The `Case` model is the central domain object.
+The case is the central entity around which the system is organized.
 
 ```text
-┌─────────────────────────────┐
-│            CASE             │
-├─────────────────────────────┤
-│ UUID                        │
-│ Case Number                 │
-│ Title                       │
-│ Case Type                   │
-│ Status                      │
-│ Description                 │
-│ Police Station              │
-│ Jurisdiction                │
-│ Opened At                   │
-│ Closed At                   │
-│ Created By                  │
-│ Created At                  │
-│ Updated At                  │
-└──────────────┬──────────────┘
-               │
-       ┌───────┼────────┬───────────────┐
-       ▼       ▼        ▼               ▼
-    Members Persons Documents        Evidence
+Case
+ │
+ ├── Case Members
+ │
+ ├── Persons
+ │
+ ├── Documents
+ │
+ └── Evidence
 ```
 
-### Case lifecycle
+A case stores information such as:
+
+- Case number
+- Title
+- Case type
+- Status
+- Description
+- Police station
+- Jurisdiction
+- Opening timestamp
+- Closing timestamp
+- Creator
+- Creation/update timestamps
+
+Supported case states include:
 
 ```text
 ACTIVE
-  │
-  ▼
 UNDER_INVESTIGATION
-  │
-  ▼
 IN_COURT
-  │
-  ▼
 CLOSED
-  │
-  ▼
 ARCHIVED
 ```
 
@@ -428,50 +258,49 @@ ARCHIVED
 
 # 8. Case Membership
 
-Cases can contain multiple users with different responsibilities.
+A case may have multiple authorized members.
+
+Supported case roles include:
 
 ```text
-Case
- │
- ├── Lead Investigator
- ├── Supporting Investigator
- ├── Supervisor
- ├── Forensic Officer
- ├── Prosecutor
- ├── Court Staff
- ├── Judge
- └── Observer
+LEAD_INVESTIGATOR
+SUPPORTING_INVESTIGATOR
+SUPERVISOR
+FORENSIC_OFFICER
+PROSECUTOR
+COURT_STAFF
+JUDGE
+OBSERVER
 ```
 
-A `CaseMember` record stores:
+The membership model records:
 
-* User
-* Case
-* Case role
-* Joined timestamp
-* Removal timestamp
-* Active/inactive state
+- User
+- Case
+- Case role
+- Join time
+- Removal time
+- Active state
+
+This separates **case responsibility** from the user's global organizational role.
 
 ---
 
 # 9. Person Management
 
-People are modeled independently from cases.
+CEDAR separates reusable person records from their involvement in a particular case.
 
 ```text
-             ┌────────────┐
-             │   Person   │
-             └─────┬──────┘
-                   │
-                   │ CasePerson
-          ┌────────┼─────────┐
-          ▼        ▼         ▼
-        Case A   Case B    Case C
+Person
+   │
+   ├── CasePerson ── Case A
+   │
+   ├── CasePerson ── Case B
+   │
+   └── CasePerson ── Case C
 ```
 
-This allows one person to be associated with multiple cases without duplicating the core person record.
-
-Supported involvement types:
+Supported case involvement types include:
 
 ```text
 ACCUSED
@@ -482,60 +311,56 @@ SUSPECT
 OTHER
 ```
 
+This avoids unnecessarily duplicating a person's core record across cases.
+
 ---
 
 # 10. Document Architecture
 
-Documents are attached to cases and support version tracking.
+Documents are modeled separately from their versions.
 
 ```text
-Case
- │
- └── Document
-       │
-       ├── Metadata
-       │
-       └── DocumentVersion
-             │
-             ├── File
-             ├── SHA-256
-             ├── MIME Type
-             ├── Size
-             ├── Original Filename
-             ├── Uploaded By
-             └── Uploaded At
+Document
+   │
+   ├── Version 1
+   ├── Version 2
+   └── Version N
 ```
 
-A document represents the logical record, while each version represents a specific file state.
+Supported document categories include:
 
 ```text
-Police Report
-     │
-     ├── v1 → Original submission
-     ├── v2 → Corrected submission
-     └── v3 → Final submission
+FIR
+POLICE_REPORT
+WITNESS_STATEMENT
+CHARGE_SHEET
+COURT_FILING
+EVIDENCE_RECORD
+FORENSIC_REPORT
+LEGAL_NOTICE
+JUDGMENT
+OTHER
 ```
+
+Each document version stores metadata including:
+
+- File path/object reference
+- Original filename
+- SHA-256 hash
+- File size
+- MIME type
+- Uploader
+- Timestamp
+
+The versioning model preserves historical file metadata rather than replacing the previous version.
 
 ---
 
 # 11. Document Access Control
 
-Documents have an additional permission layer.
+CEDAR includes a document access model that can represent explicit permissions.
 
-```text
-Document
-   │
-   └── DocumentAccess
-          │
-          ├── User
-          ├── Permission
-          ├── Granted By
-          ├── Granted At
-          ├── Expires At
-          └── Active?
-```
-
-Supported permissions:
+Supported permission types include:
 
 ```text
 VIEW
@@ -544,183 +369,138 @@ EDIT
 SHARE
 ```
 
-This provides a foundation for granular document-level authorization.
+Access records can contain:
+
+- Document
+- User
+- Permission
+- Granting user
+- Grant timestamp
+- Expiration timestamp
+- Active state
+
+The model provides a foundation for fine-grained document authorization.
 
 ---
 
-# 12. Digital Evidence Architecture
+# 12. Evidence Architecture
 
-Evidence is modeled separately from ordinary documents because evidence requires custody tracking.
+Evidence is modeled independently from ordinary case documents.
 
 ```text
-┌──────────────────────────────┐
-│           EVIDENCE           │
-├──────────────────────────────┤
-│ Evidence Number              │
-│ Evidence Type                │
-│ Description                  │
-│ Case                         │
-│ Collected By                 │
-│ Collected At                 │
-│ Collection Location          │
-│ Status                       │
-│ Current Custodian            │
-└───────────────┬──────────────┘
-                │
-                ▼
-        ┌───────────────┐
-        │ CustodyEvent  │
-        └───────┬───────┘
-                │
-        ┌───────┼─────────┐
-        ▼       ▼         ▼
-      User    User      Timestamp
-     FROM      TO
+Case
+ │
+ └── Evidence
+      ├── Evidence Number
+      ├── Type
+      ├── Description
+      ├── Collection Details
+      ├── Status
+      └── Current Custodian
+```
+
+Evidence statuses include:
+
+```text
+COLLECTED
+IN_CUSTODY
+SUBMITTED
+ANALYZED
+RELEASED
+DISPOSED
 ```
 
 ---
 
 # 13. Chain of Custody
 
-The custody model records each movement of evidence.
+Custody history is represented through separate events.
 
 ```text
-Crime Scene
-     │
-     │ COLLECTED
-     ▼
-Investigating Officer
-     │
-     │ TRANSFERRED
-     ▼
-Malkhana / Custodian
-     │
-     │ SUBMITTED
-     ▼
-Forensic Laboratory
-     │
-     │ RECEIVED
-     ▼
-Forensic Officer
-     │
-     │ RELEASED
-     ▼
-Authorized Destination
+Evidence Collected
+        ↓
+     In Custody
+        ↓
+     Transferred
+        ↓
+      Received
+        ↓
+     Submitted
+        ↓
+     Analyzed
+        ↓
+     Released
 ```
 
-Each custody event can record:
+A custody event can contain:
 
-* Previous custodian
-* New custodian
-* Action
-* Timestamp
-* Location
-* Reason
-* Integrity hash
+- Evidence item
+- Action
+- Previous custodian
+- New custodian
+- Timestamp
+- Location
+- Reason
+- Integrity hash
+
+The important architectural principle is that a transfer does not simply overwrite history. Each transition becomes a separate record.
 
 ---
 
-# 14. Evidence Integrity
+# 14. Cryptographic Integrity
 
-The architecture supports SHA-256 based integrity metadata.
-
-```text
-FILE
- │
- ▼
-SHA-256
- │
- ▼
-Integrity Hash
- │
- ├── Document Version
- └── Custody Event
-```
+CEDAR models SHA-256 hashes for digital artifacts and custody-related records.
 
 Conceptually:
 
 ```text
-Original File
-     │
-     ▼
- SHA-256 Hash
-     │
-     ▼
-Stored Metadata
-     │
-     └───────────────┐
-                     │
-              Later Verification
-                     │
-                     ▼
-                New SHA-256
-                     │
-              ┌──────┴──────┐
-              │             │
-           MATCH         MISMATCH
-              │             │
-           Intact        Investigate
+Digital File
+     ↓
+SHA-256
+     ↓
+Store Hash + Metadata
+     ↓
+Later Verification
+     ↓
+Compare Hashes
+     ↓
+Detect Unexpected Change
 ```
 
-The hash provides an integrity indicator; it does not by itself establish legal authenticity.
+Hashing provides an integrity-verification mechanism; it does not by itself make the storage system immutable.
 
 ---
 
-# 15. Document Processing Pipeline
+# 15. Document Processing
 
-Document versions can have an associated processing result.
+The document-processing model supports extracted metadata and processing results.
 
-```text
-Document Upload
-      │
-      ▼
-DocumentVersion
-      │
-      ▼
-Processing Result
-      │
-      ├── PENDING
-      ├── COMPLETED
-      └── FAILED
-```
+It can represent:
 
-The processing model can store:
+- Processing status
+- Extraction method
+- Page count
+- Raw text
+- Cleaned text
+- OCR confidence
+- FIR number
+- FIR date/year
+- District
+- Police station
+- Suspected offence
+- Legal sections
+- Processing errors
+- Processing timestamp
 
-* Extraction method
-* Page count
-* Raw text
-* Cleaned text
-* OCR confidence
-* FIR number
-* FIR date/year
-* District
-* Police station
-* Suspected offence
-* Sections
-* Error information
+The processing model is designed so document ingestion and extraction can be integrated without coupling extraction logic directly to the core document record.
 
 ---
 
 # 16. Audit Architecture
 
-The audit subsystem records important system activity.
+The audit system provides a dedicated record of security-sensitive operations.
 
-```text
-┌───────────────────────────────┐
-│           AuditLog            │
-├───────────────────────────────┤
-│ ID                            │
-│ User                          │
-│ Action                        │
-│ Resource Type                 │
-│ Resource ID                   │
-│ Description                   │
-│ IP Address                    │
-│ Timestamp                     │
-└───────────────────────────────┘
-```
-
-Supported actions:
+Supported actions include:
 
 ```text
 CREATE
@@ -734,455 +514,405 @@ LOGOUT
 ACCESS_DENIED
 ```
 
-Example:
+An audit record can contain:
 
 ```text
-Officer
-   │
-   │ downloads document
-   ▼
-Authorization Check
-   │
-   ├── Allowed ──────► File Access
-   │                       │
-   │                       ▼
-   │                    AuditLog
-   │
-   └── Denied ───────► ACCESS_DENIED
-                           │
-                           ▼
-                       AuditLog
+User
+Action
+Resource Type
+Resource ID
+Description
+IP Address
+Timestamp
 ```
+
+Conceptual flow:
+
+```text
+User Action
+     ↓
+Authorization Check
+     ↓
+Resource Operation
+     ↓
+Audit Event
+     ↓
+AuditLog
+```
+
+The current repository contains the audit data model; automatic generation of every audit event remains part of the planned integration layer.
 
 ---
 
 # 17. Data Relationship Map
 
 ```text
-                         ┌──────────────┐
-                         │ Organization │
-                         └──────┬───────┘
-                                │
-                                ▼
-                         ┌──────────────┐
-                         │     User     │
-                         └───┬──────┬───┘
-                             │      │
-                        Role │      │ CaseMember
-                             │      │
-                             │      ▼
-                             │  ┌──────────┐
-                             └─►│   Case   │
-                                └────┬─────┘
-                                     │
-              ┌──────────────────────┼────────────────────────┐
-              │                      │                        │
-              ▼                      ▼                        ▼
-        ┌──────────┐          ┌────────────┐           ┌───────────┐
-        │  Person  │          │  Document  │           │ Evidence  │
-        └────┬─────┘          └──────┬─────┘           └─────┬─────┘
-             │                       │                       │
-             │ CasePerson            │ DocumentVersion       │
-             │                       │                       │
-             │                       ▼                       ▼
-             │                ProcessingResult          CustodyEvent
-             │
-             └───────────────────────────────────────────────┐
-                                                             │
-                                                             ▼
-                                                       Case Activity
+Organization
+     │
+     └── Users
+          │
+          └── Roles
+               │
+               ├──────────────┐
+               ↓              ↓
+             Cases         Audit Logs
+               │
+      ┌────────┼─────────┐
+      ↓        ↓         ↓
+  Members   Persons   Documents
+                         │
+                         ↓
+                  Document Versions
 
-User ───────────────────────────────────────────────────────► AuditLog
+Cases
+  │
+  └── Evidence
+        │
+        └── Custody Events
 ```
 
 ---
 
 # 18. Storage Architecture
 
-CICADA separates structured application data from binary file storage.
+CEDAR separates structured metadata from digital file storage.
 
 ```text
-                    Django Application
-                           │
-             ┌─────────────┴─────────────┐
-             │                           │
-             ▼                           ▼
-      Structured Data                Binary Files
-             │                           │
-             ▼                           ▼
-        PostgreSQL                    MinIO
-             │                           │
-             ├── Users                   ├── Documents
-             ├── Cases                   ├── Evidence
-             ├── Persons                 └── File Versions
-             ├── Metadata
-             └── Audit Logs
+                  CEDAR Backend
+                       │
+          ┌────────────┴────────────┐
+          ↓                         ↓
+     PostgreSQL                  MinIO
+          │                         │
+          ↓                         ↓
+   Structured Metadata       Digital Objects
+   Users                    Documents
+   Cases                    Evidence Files
+   Versions                 Other Attachments
+   Audit Logs
 ```
 
-### PostgreSQL
-
-Used for:
-
-* Identity data
-* Cases
-* Relationships
-* Metadata
-* Permissions
-* Audit records
-* Evidence metadata
-* Document metadata
-
-### MinIO / S3-compatible storage
-
-Designed for:
-
-* Uploaded documents
-* Evidence files
-* Versioned binary objects
+PostgreSQL is intended to store metadata and relationships, while MinIO/S3-compatible storage is intended for the actual digital objects.
 
 ---
 
 # 19. Security Architecture
 
-Security is distributed across multiple layers.
+The security design is built around several layers.
 
 ```text
-┌─────────────────────────────────────────────────────────┐
-│                     SECURITY LAYERS                     │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  1. Identity                                            │
-│     └── Django Authentication                           │
-│                                                         │
-│  2. Organization                                        │
-│     └── User → Organization                             │
-│                                                         │
-│  3. Role                                                │
-│     └── User → Role                                     │
-│                                                         │
-│  4. Case Authorization                                  │
-│     └── CaseMember                                      │
-│                                                         │
-│  5. Document Authorization                              │
-│     └── DocumentAccess                                  │
-│                                                         │
-│  6. Integrity                                           │
-│     └── SHA-256                                         │
-│                                                         │
-│  7. Auditability                                        │
-│     └── AuditLog                                        │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+┌──────────────────────────────┐
+│ Identity & Authentication    │
+├──────────────────────────────┤
+│ Organization / Role Context  │
+├──────────────────────────────┤
+│ Case Membership              │
+├──────────────────────────────┤
+│ Document Permissions         │
+├──────────────────────────────┤
+│ Evidence Custody Tracking    │
+├──────────────────────────────┤
+│ SHA-256 Integrity Metadata   │
+├──────────────────────────────┤
+│ Audit Logging                │
+└──────────────────────────────┘
 ```
+
+The target security architecture includes:
+
+- Server-side authentication
+- Role-based authorization
+- Object/document-level permissions
+- Controlled evidence transfers
+- Versioned documents
+- Cryptographic integrity metadata
+- Audit logging
+- Secure object storage
+- HTTPS/TLS in deployment
 
 ---
 
 # 20. Request Lifecycle
 
-A typical authenticated request follows:
+A target authenticated request can follow this flow:
 
 ```text
-Browser
-   │
-   │ HTTP Request
-   ▼
-Django / DRF
-   │
-   ▼
+Client
+  ↓
+Nginx / Reverse Proxy
+  ↓
+Django Application
+  ↓
 Authentication
-   │
-   ▼
-User Identification
-   │
-   ▼
-Role / Organization Check
-   │
-   ▼
-Case / Document Permission Check
-   │
-   ├───────────────┐
-   │               │
- ALLOWED          DENIED
-   │               │
-   ▼               ▼
-Business Logic   AuditLog
-   │
-   ▼
-Database / Storage
-   │
-   ▼
+  ↓
+Organization / Role Check
+  ↓
+Case / Resource Authorization
+  ↓
+Business Operation
+  ↓
+Database / Object Storage
+  ↓
+Audit Event
+  ↓
 Response
-   │
-   ▼
-Browser
 ```
+
+Not every step above is fully implemented in the current prototype.
 
 ---
 
-# 21. Example: Accessing a Case Document
+# 21. Document Access Flow
 
 ```text
-Officer
-   │
-   │ Request document
-   ▼
-┌───────────────────┐
-│ Authentication    │
-└─────────┬─────────┘
-          ▼
-┌───────────────────┐
-│ Identify User     │
-└─────────┬─────────┘
-          ▼
-┌───────────────────┐
-│ Case Membership   │
-└─────────┬─────────┘
-          ▼
-┌───────────────────┐
-│ Document Access   │
-└─────────┬─────────┘
-          │
-       ┌──┴──┐
-       ▼     ▼
-     ALLOW  DENY
-       │     │
-       │     └──────────► ACCESS_DENIED AuditLog
-       │
-       ▼
-  Retrieve File
-       │
-       ▼
-  Record Activity
-       │
-       ▼
-   Return File
+User
+ ↓
+Login
+ ↓
+Organization / Role Context
+ ↓
+Open Case
+ ↓
+Check Case Membership
+ ↓
+Check Document Permission
+ ↓
+Retrieve Metadata
+ ↓
+Retrieve Authorized File
+ ↓
+Record Access Event
 ```
+
+This is the intended architecture for controlled document access.
 
 ---
 
-# 22. Deployment Architecture
-
-The intended deployment separates the major application components.
+# 22. Evidence Transfer Flow
 
 ```text
-                         INTERNET
-                            │
-                            ▼
-                     ┌─────────────┐
-                     │    Nginx    │
-                     │ Reverse     │
-                     │ Proxy       │
-                     └──────┬──────┘
-                            │
-                 ┌──────────┴──────────┐
-                 │                     │
-                 ▼                     ▼
-          Static / Frontend       Gunicorn
-                                      │
-                                      ▼
-                                Django Backend
-                                      │
-                     ┌────────────────┼────────────────┐
-                     │                │                │
-                     ▼                ▼                ▼
-                PostgreSQL          MinIO          Audit System
+Current Custodian
+        ↓
+Transfer Request
+        ↓
+Authorization Check
+        ↓
+Create Custody Event
+        ↓
+Update Current Custodian
+        ↓
+Record Integrity Metadata
+        ↓
+Audit Event
 ```
+
+The custody event becomes part of the permanent case history.
 
 ---
 
-# 23. Module Dependency Graph
+# 23. Deployment Architecture
+
+The intended deployment stack is:
 
 ```text
-                         ┌──────────────┐
-                         │   Accounts   │
-                         │ Identity/RBAC│
-                         └───────┬──────┘
-                                 │
-                ┌────────────────┼─────────────────┐
-                │                │                 │
-                ▼                ▼                 ▼
-          ┌──────────┐     ┌──────────┐     ┌──────────┐
-          │  Cases   │     │ Persons  │     │  Audit   │
-          └────┬─────┘     └────┬─────┘     └──────────┘
-               │                │
-               └───────┬────────┘
-                       ▼
-                ┌──────────────┐
-                │  Documents   │
-                │ & Evidence   │
-                └──────┬───────┘
+                    Internet
                        │
-                ┌──────┴──────┐
-                ▼             ▼
+                       ↓
+                  Nginx / TLS
+                       │
+                       ↓
+                 Gunicorn
+                       │
+                       ↓
+                  Django App
+                  /         \
+                 ↓           ↓
            PostgreSQL       MinIO
 ```
 
----
-
-# 24. Data Integrity Strategy
-
-CICADA uses several complementary integrity mechanisms.
-
-### Database integrity
-
-Model constraints enforce relationships such as:
+Containerized development infrastructure can include:
 
 ```text
-Case + User
-     ↓
-Unique Case Membership
+Docker
+ ├── Django
+ ├── PostgreSQL
+ ├── MinIO
+ └── Nginx
 ```
 
-```text
-Case + Evidence Number
-     ↓
-Unique Evidence Identifier
-```
-
-```text
-Document + Version Number
-     ↓
-Unique Document Version
-```
-
-### File integrity
-
-```text
-File
- ↓
-SHA-256
- ↓
-Stored Hash
-```
-
-### Historical integrity
-
-```text
-Document
- ↓
-Document Versions
-
-Evidence
- ↓
-Custody Events
-
-System Action
- ↓
-Audit Logs
-```
+Actual production deployment requires appropriate infrastructure hardening, secrets management, TLS configuration, access controls and monitoring.
 
 ---
 
-# 25. Why CICADA Is Case-Centric
-
-A basic document management system might look like:
+# 24. Module Dependency Graph
 
 ```text
-User → Files
+                    accounts
+                       │
+             ┌─────────┼─────────┐
+             ↓         ↓         ↓
+           cases    persons    audit
+             │
+             ↓
+         documents
+             │
+       ┌─────┴─────┐
+       ↓           ↓
+    versions     evidence
+                     │
+                     ↓
+               custody events
 ```
 
-CICADA instead models:
-
-```text
-                         CASE
-                          │
-       ┌──────────────────┼──────────────────┐
-       │                  │                  │
-     PEOPLE            DOCUMENTS          EVIDENCE
-       │                  │                  │
-       │                  │                  └── CUSTODY
-       │                  └── VERSIONS
-       │
-       └── INVOLVEMENT
-
-                          │
-                          ▼
-                       USERS
-                          │
-                          ▼
-                      AUDITING
-```
-
-This keeps investigation context connected to the records that support it.
+The case model acts as the central domain relationship for persons, documents and evidence.
 
 ---
 
-# 26. Current Implementation vs Target Architecture
+# 25. Data Integrity Strategy
 
-> **Important:** This document describes the implemented domain architecture and the intended integration architecture. Not every component currently has a complete production API implementation.
+CEDAR uses multiple complementary mechanisms:
 
-### Currently represented in the repository
+### Relational Integrity
 
-* Django domain models
-* Custom user model
-* Organizations and roles
-* Case management schema
-* Case membership
-* Person/case relationships
-* Document/version schema
-* Evidence model
-* Chain-of-custody model
-* Document access model
-* Document processing result model
-* Audit log model
-* PostgreSQL configuration
-* MinIO/S3-compatible storage configuration
-* React/Vite frontend
-* Prototype dashboards and case interfaces
+Foreign keys and database constraints maintain relationships between domain entities.
 
-### Target / integration layer
+### Uniqueness
 
-* Complete DRF API layer
-* Backend-driven authentication
-* Complete RBAC enforcement
-* Case-level authorization
-* Document-level authorization
-* Production MinIO integration
-* Automated audit generation
-* Frontend/backend integration
-* Automated document processing
-* Comprehensive security testing
+Examples include:
+
+- Unique case numbers
+- Unique document-version combinations
+- Unique case/user membership combinations
+- Unique document/user/permission combinations
+
+### Versioning
+
+Previous document versions remain represented rather than being silently overwritten.
+
+### Cryptographic Hashing
+
+SHA-256 hashes provide a mechanism for detecting unexpected changes to digital content.
+
+### Audit Records
+
+Important operations can be represented as timestamped events associated with users and resources.
 
 ---
 
-# 27. Technology Stack
+# 26. Case-Centric Rationale
+
+The case is deliberately the central domain object.
+
+Instead of organizing the system primarily around files:
 
 ```text
-┌──────────────────────────────────────────────────────────┐
-│                         CICADA                           │
-├──────────────────────────────────────────────────────────┤
-│                                                          │
-│  FRONTEND                                                │
-│  React 19 · Vite · React Router · JavaScript · CSS       │
-│                                                          │
-│  BACKEND                                                 │
-│  Python · Django 5.2 · Django REST Framework             │
-│                                                          │
-│  DATABASE                                                │
-│  PostgreSQL · psycopg                                    │
-│                                                          │
-│  STORAGE                                                 │
-│  MinIO · S3-compatible object storage                    │
-│                                                          │
-│  SERVER                                                  │
-│  Nginx · Gunicorn                                        │
-│                                                          │
-│  INFRASTRUCTURE                                          │
-│  Docker                                                   │
-│                                                          │
-│  SECURITY / INTEGRITY                                    │
-│  RBAC · Case Membership · Document Permissions            │
-│  SHA-256 · Audit Logging                                 │
-│                                                          │
-└──────────────────────────────────────────────────────────┘
+Files
+ ├── File 1
+ ├── File 2
+ └── File 3
+```
+
+CEDAR organizes information around the case:
+
+```text
+Case
+ ├── People
+ ├── Documents
+ │    └── Versions
+ ├── Evidence
+ │    └── Custody
+ └── Audit History
+```
+
+This structure allows the complete context of a case to be represented while retaining accountability for individual resources and actions.
+
+---
+
+# 27. Current vs Target Architecture
+
+## Currently Represented
+
+- Django domain models
+- PostgreSQL data model
+- User/organization/role relationships
+- Case management models
+- Case membership
+- Person/case relationships
+- Document versioning
+- Evidence model
+- Custody event model
+- Document access model
+- Audit log model
+- React frontend prototype
+- Docker-based PostgreSQL infrastructure
+
+## Target / Integration Layer
+
+- Complete Django REST API
+- Server-side authentication
+- Complete RBAC enforcement
+- Backend-powered frontend
+- MinIO object storage integration
+- Automated audit generation
+- Production evidence-transfer APIs
+- Full document access enforcement
+- Automated integrity verification
+- Comprehensive security testing
+
+This distinction prevents the architecture documentation from overstating the current implementation.
+
+---
+
+# 28. Technology Stack
+
+## Frontend
+
+```text
+React 19
+React Router
+Vite
+JavaScript
+CSS
+```
+
+## Backend
+
+```text
+Python
+Django 5.2
+Django REST Framework
+django-environ
+```
+
+## Database
+
+```text
+PostgreSQL
+psycopg
+```
+
+## Storage
+
+```text
+MinIO / S3-compatible object storage
+```
+
+## Infrastructure
+
+```text
+Docker
+Nginx
+Gunicorn
+PostgreSQL
+MinIO
 ```
 
 ---
 
-# 28. Project Structure
+# 29. Project Structure
 
 ```text
-CICADA/
+CEDAR/
 │
 ├── backend/
 │   ├── accounts/
@@ -1195,12 +925,11 @@ CICADA/
 │
 ├── frontend/
 │   └── my-react-app/
-│       ├── src/
-│       │   ├── components/
-│       │   ├── pages/
-│       │   ├── data/
-│       │   └── assets/
-│       └── package.json
+│       └── src/
+│           ├── components/
+│           ├── pages/
+│           ├── data/
+│           └── assets/
 │
 ├── infrastructure/
 │   ├── docker/
@@ -1220,75 +949,31 @@ CICADA/
 
 ---
 
-# 29. Prototype Interface
+# 30. Prototype Interface
 
-The current frontend prototype follows the main user-facing flow:
+The current frontend flow is:
 
 ```text
 Landing Page
-     ↓
+      ↓
 Registration
-     ↓
+      ↓
 Login
-     ↓
+      ↓
 Role / Officer Context
-     ↓
+      ↓
 Dashboard
-     ↓
+      ↓
 Case Search & Filtering
-     ↓
+      ↓
 Case Dossier
-     ↓
+      ↓
 Evidence & Notes
-     ↓
+      ↓
 Officer Profile
 ```
 
-The interface is designed around a government-system visual language with:
-
-* Navy primary theme
-* Structured navigation
-* Officer dashboards
-* Case status indicators
-* Evidence integrity indicators
-* Role-specific information
-* Case dossier views
-
----
-
-# 30. Current Prototype Status
-
-### Implemented / Demonstrated
-
-* Government-style landing page
-* Officer registration interface
-* Officer login interface
-* Role-specific police dashboard
-* Case search and filtering
-* Case dossier interface
-* Delegated case workflow representation
-* Officer profile interface
-* Case notes prototype
-* Django domain models
-* PostgreSQL schema
-* Evidence and custody data model
-* Document versioning model
-* Audit-log model
-* Docker-based PostgreSQL infrastructure
-
-### Planned / Architecture Ready
-
-* Full Django REST API
-* Server-side authentication
-* Complete RBAC enforcement
-* Backend-powered case dashboard
-* MinIO evidence storage
-* Production custody-transfer APIs
-* Automated audit generation
-* Complete frontend/backend integration
-* Comprehensive security and integration testing
-
-The current submission therefore represents a **working prototype and architectural foundation** for the complete platform.
+The prototype demonstrates a government-oriented interface with structured dashboards, case status indicators, evidence information and role-specific workflows.
 
 ---
 
@@ -1304,20 +989,18 @@ PostgreSQL
 Docker (recommended)
 ```
 
-## Clone the Repository
-
-```bash
-git clone https://github.com/nakulanil/CICADA.git
-cd CICADA
-```
-
-## Backend Setup
+## Backend
 
 ```bash
 cd backend
 
 python -m venv venv
 source venv/bin/activate
+
+pip install -r ../requirements.txt
+
+python manage.py migrate
+python manage.py runserver
 ```
 
 Windows:
@@ -1326,22 +1009,9 @@ Windows:
 venv\Scripts\activate
 ```
 
-Install dependencies:
+Create `.env` from `.env.example` before running the backend.
 
-```bash
-pip install -r ../requirements.txt
-```
-
-Create a `.env` file based on `.env.example`.
-
-Then:
-
-```bash
-python manage.py migrate
-python manage.py runserver
-```
-
-## Frontend Setup
+## Frontend
 
 ```bash
 cd frontend/my-react-app
@@ -1350,7 +1020,9 @@ npm install
 npm run dev
 ```
 
-## Database with Docker
+## PostgreSQL with Docker
+
+From the repository root:
 
 ```bash
 cd infrastructure/docker
@@ -1361,80 +1033,56 @@ docker compose up -d
 
 # 32. Future Scope
 
-The architecture can be extended with:
+Potential extensions include:
 
-* Strong server-side authentication
-* Multi-factor authentication
-* Fine-grained object-level authorization
-* Encrypted evidence storage
-* MinIO-based object storage
-* Digital signatures
-* Automated hash verification
-* Immutable audit infrastructure
-* Forensic laboratory workflows
-* Prosecutor and court dashboards
-* Secure inter-agency case sharing
-* Advanced case search
-* Automated compliance reports
-* Evidence export packages
-* Notification and escalation workflows
-* Security monitoring
-* Government-scale deployment
+- Strong server-side authentication
+- Multi-factor authentication
+- Fine-grained object-level authorization
+- Encrypted evidence storage
+- MinIO-based object storage
+- Digital signatures
+- Automated hash verification
+- Immutable audit infrastructure
+- Forensic laboratory workflows
+- Prosecutor and court dashboards
+- Secure inter-agency case sharing
+- Advanced case search
+- Compliance reporting
+- Evidence export packages
+- Notifications and escalation workflows
+- Security monitoring
+- Production deployment
 
 ---
 
 # 33. Architectural Summary
 
-The CICADA architecture can ultimately be reduced to one pipeline:
+CEDAR is structured around a secure, case-centric model that connects:
 
 ```text
-                 ┌───────────────┐
-                 │    IDENTITY   │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │     ROLE      │
-                 └───────┬───────┘
-                         │
-                         ▼
-                 ┌───────────────┐
-                 │     CASE      │
-                 └───────┬───────┘
-                         │
-          ┌──────────────┼───────────────┐
-          ▼              ▼               ▼
-       PERSON         DOCUMENT         EVIDENCE
-                         │               │
-                         ▼               ▼
-                      VERSION         CUSTODY
-                         │               │
-                         └───────┬───────┘
-                                 ▼
-                            AUDIT LOG
-                                 │
-                                 ▼
-                         TRACEABLE SYSTEM
+Users
+  ↓
+Organizations & Roles
+  ↓
+Cases
+  ├── Persons
+  ├── Documents
+  │     └── Versions
+  ├── Evidence
+  │     └── Custody Events
+  └── Audit Logs
 ```
 
-The architecture connects:
+The architecture is designed to provide:
 
-> **Who accessed it → what case it belongs to → what record was involved → what changed → who handled it → and when it happened.**
+**Traceability + Accountability + Integrity + Controlled Access**
 
----
-
-# 🛡️ Security Principle
-
-> **Trust should be supported through identity, authorization, integrity checks and an auditable history — not assumed.**
+while maintaining a clear separation between the current prototype implementation and the target production architecture.
 
 ---
 
-<div align="center">
+# 34. Security Principle
 
-### CICADA
+> Every important case operation should be attributable to an authorized actor, associated with the relevant resource, and recorded in a way that supports later verification.
 
-**Secure Digital Evidence & Case Management System**
-
-`React` · `Django` · `PostgreSQL` · `MinIO` · `RBAC` · `Audit Logging`
-
-</div>
+CEDAR is a prototype architecture and should not be treated as a production law-enforcement system without appropriate security validation, legal review, infrastructure hardening, privacy controls and operational testing.
