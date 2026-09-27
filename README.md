@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ CICADA
+# 🛡️ CEDAR
 
 ### Secure Digital Evidence & Case Management System
 
@@ -18,7 +18,7 @@
 
 ## Project Overview
 
-**e-Sakshya** is a secure digital case and evidence management system designed to streamline the handling of criminal cases and digital/physical evidence across law-enforcement, forensic, prosecution and judicial stakeholders.
+**CEDAR** is a secure digital case and evidence management system designed to streamline the handling of criminal cases and digital/physical evidence across law-enforcement, forensic, prosecution and judicial stakeholders.
 
 The system provides a centralized environment for managing:
 
@@ -50,7 +50,7 @@ This creates challenges such as:
 * Difficulty maintaining a complete audit trail
 * Delays in sharing information between investigation, forensic and legal teams
 
-e-Sakshya is designed around a **single digital case lifecycle** where evidence and documents remain connected to their cases and every important operation can be recorded and traced.
+CEDAR is designed around a **single digital case lifecycle** where evidence and documents remain connected to their cases and every important operation can be recorded and traced.
 
 ---
 
@@ -294,7 +294,7 @@ This allows the interface to demonstrate how the same case-management platform c
 
 ```text
 ┌──────────────────────────────────────────────────────────────────┐
-│                         e-SAKSHYA                                 │
+│                           CEDAR                                 │
 │             Secure Digital Case & Evidence System                │
 ├──────────────────────────────────────────────────────────────────┤
 │                          USERS                                   │
@@ -632,7 +632,7 @@ The repository contains the initial infrastructure structure for containerized d
 # Project Structure
 
 ```text
-CICADA/
+CEDAR/
 │
 ├── backend/
 │   ├── accounts/
@@ -742,11 +742,11 @@ Documents maintain historical versions instead of replacing previous records.
 
 ---
 
-# Why e-Sakshya?
+# Why CEDAR?
 
 Traditional digital document systems focus primarily on storing files.
 
-e-Sakshya instead models the **entire evidence lifecycle**:
+CEDAR instead models the **entire evidence lifecycle**:
 
 ```text
 CASE
@@ -821,8 +821,8 @@ Docker (recommended)
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/nakulanil/CICADA.git
-cd CICADA
+git clone https://github.com/nakulanil/CEDAR.git
+cd CEDAR
 ```
 
 ---
@@ -911,7 +911,7 @@ The architecture can be extended into a full production platform with:
 
 # Team
 
-**CICADA**
+**CEDAR**
 
 A student development team building a prototype for secure, accountable and digitally traceable evidence management.
 
