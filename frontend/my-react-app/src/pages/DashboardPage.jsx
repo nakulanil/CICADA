@@ -13,6 +13,7 @@ import '../styles/sho-dashboard.css'
 import '../styles/sho-pages.css'
 import '../styles/sho-workspace.css'
 import '../styles/sho-shell.css'
+import { logoutUser } from '../utils/api'
 
 const initialCaseTeams = {
   'FIR-2026-089': [
@@ -88,9 +89,20 @@ export default function DashboardPage() {
     navigate(sectionPaths[section] || '/dashboard')
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('dems_active_user')
-    navigate('/')
+  const handleLogout = async () => {
+    const token = localStorage.getItem('dems_auth_token')
+
+    try {
+      if (token) {
+        await logoutUser(token)
+      }
+    } catch (error) {
+      console.error('Logout failed:', error)
+    } finally {
+      localStorage.removeItem('dems_auth_token')
+      localStorage.removeItem('dems_active_user')
+      navigate('/')
+    }
   }
 
   return (

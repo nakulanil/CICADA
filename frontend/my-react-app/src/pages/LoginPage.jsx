@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { organizations } from '../data/demsData'
-import { authenticatePrototypeUser } from '../utils/auth'
+import { loginUser } from '../utils/api'
 import secretariatHeroImg from '../assets/secretariat_hero.jpg'
 
 /**
@@ -28,32 +28,48 @@ export default function LoginPage() {
     }
   }, [prefillUsername])
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault()
-    setErrorMsg('')
+    const handleLoginSubmit = async (e) => {
+      e.preventDefault()
+      setErrorMsg('')
 
-    if (!username.trim()) {
-      setErrorMsg('Please enter both username and password.')
-      usernameRef.current?.focus()
-      return
+      if (!username.trim()) {
+        setErrorMsg('Please enter both username and password.')
+        usernameRef.current?.focus()
+        return
+      }
+
+      if (!password) {
+        setErrorMsg('Please enter both username and password.')
+        passwordRef.current?.focus()
+        return
+      }
+
+      try {
+        const loginResponse = await loginUser(username, password)
+        const token = loginResponse.token
+        const backendUser = loginResponse.user
+
+        const loggedUser = {
+          ...backendUser,
+          name:
+            `${backendUser.first_name || ''} ${backendUser.last_name || ''}`.trim() ||
+            backendUser.username,
+          orgName: backendUser.organization || 'Police Department',
+          roleName: backendUser.role || 'Station House Officer (SHO)',
+          officerId: 'sho',
+          roleId: 'police_sho',
+          cadre: 'Supervisory Station In-Charge',
+          station: 'Central Police Station, Division I',
+        }
+
+        localStorage.setItem('dems_auth_token', token)
+        localStorage.setItem('dems_active_user', JSON.stringify(loggedUser))
+
+        navigate('/dashboard')
+      } catch (error) {
+        setErrorMsg(error.message || 'Invalid username/email or password.')
+      }
     }
-
-    if (!password) {
-      setErrorMsg('Please enter both username and password.')
-      passwordRef.current?.focus()
-      return
-    }
-
-    const loggedUser = authenticatePrototypeUser(username, password)
-
-    if (!loggedUser) {
-      setErrorMsg('Invalid username/email or password.')
-      return
-    }
-
-    localStorage.setItem('dems_active_user', JSON.stringify(loggedUser))
-    navigate('/dashboard')
-  }
 
   const handleQuickDemo = (orgId, roleId) => {
     const org = organizations.find((o) => o.id === orgId)

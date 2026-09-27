@@ -357,9 +357,9 @@
 .sho-workspace-heading, .sho-detail-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
 .sho-workspace-heading h1, .sho-detail-heading h1 { margin: 0; color: #102d4b; font-size: clamp(25px, 2vw, 28px); line-height: 1.15; }
 .sho-workspace-heading p:not(.sho-eyebrow) { margin: 5px 0 0; color: #6d7d8e; font-size: 12.5px; }
-.sho-secondary-button, .sho-primary-button, .sho-review-button { appearance: none; display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 8px 12px; border: 1px solid #b37d2e; border-radius: var(--sho-control-radius); cursor: pointer; font-size: 11.5px; font-weight: 800; line-height: 1.2; }
+.sho-secondary-button, .sho-primary-button, .sho-review-button, .sho-document-download { appearance: none; display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 8px 12px; border: 1px solid #b37d2e; border-radius: var(--sho-control-radius); cursor: pointer; font-size: 11.5px; font-weight: 800; line-height: 1.2; }
 .sho-secondary-button { background: transparent; color: #8e621e; }
-.sho-secondary-button:hover, .sho-review-button:hover { background: #f8eedf; }
+.sho-secondary-button:hover, .sho-review-button:hover, .sho-document-download:hover { background: #f8eedf; }
 .sho-primary-button { padding: 9px 12px; background: #b37d2e; color: #fff; border-color: #b37d2e; }
 .sho-primary-button:hover { background: #95651f; }
 .sho-inbox-toolbar,

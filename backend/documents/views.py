@@ -2,7 +2,7 @@ import os
 import tempfile
 
 
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -103,7 +103,7 @@ def create_access_denied_log(
 
 class DocumentUploadView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -298,7 +298,7 @@ class DocumentUploadView(APIView):
 
 class DocumentDetailView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, document_id):
@@ -388,7 +388,7 @@ class DocumentDetailView(APIView):
 
 class DocumentProcessingResultView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, version_id):
@@ -474,7 +474,7 @@ class DocumentProcessingResultView(APIView):
 
 class DocumentDownloadView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, version_id):
@@ -554,7 +554,7 @@ class DocumentDownloadView(APIView):
 
 class DocumentIntegrityView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, version_id):
@@ -636,7 +636,7 @@ class DocumentIntegrityView(APIView):
 
 class DocumentSearchView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -724,7 +724,7 @@ class DocumentSearchView(APIView):
 
 class DocumentShareView(APIView):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, document_id):
