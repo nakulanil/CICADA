@@ -1,5 +1,3 @@
-import base64
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -103,30 +101,44 @@ class DocumentTests(TestCase):
     # ======================================================
 
     def login_user(self):
-        credentials = base64.b64encode(
-            b"testuser:testpass123"
-        ).decode()
-
-        self.client.defaults["HTTP_AUTHORIZATION"] = (
-            f"Basic {credentials}"
+        response = self.client.post(
+            "/api/auth/login/",
+            {
+                "username": "testuser",
+                "password": "testpass123",
+            },
+            format="json",
         )
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Token {response.data['token']}"
+        )
+
 
     def login_other_user(self):
-        credentials = base64.b64encode(
-            b"otheruser:testpass123"
-        ).decode()
-
-        self.client.defaults["HTTP_AUTHORIZATION"] = (
-            f"Basic {credentials}"
+        response = self.client.post(
+            "/api/auth/login/",
+            {
+                "username": "otheruser",
+                "password": "testpass123",
+            },
+            format="json",
+        )
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Token {response.data['token']}"
         )
 
-    def login_unauthorized_user(self):
-        credentials = base64.b64encode(
-            b"unauthorized:testpass123"
-        ).decode()
 
-        self.client.defaults["HTTP_AUTHORIZATION"] = (
-            f"Basic {credentials}"
+    def login_unauthorized_user(self):
+        response = self.client.post(
+            "/api/auth/login/",
+            {
+                "username": "unauthorized",
+                "password": "testpass123",
+            },
+            format="json",
+        )
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f"Token {response.data['token']}"
         )
 
     # ======================================================
