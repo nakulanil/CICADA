@@ -16,7 +16,7 @@ export default function Footer({ copy }) {
     <footer className="gov-official-footer">
       <div className="site-container footer-flex-container">
         <div className="footer-left-meta">
-          <strong>e-SAKSHYA</strong>
+          <strong>CEDAR</strong>
           <span className="footer-agency-sub">
             {footerCopy.agency}
           </span>

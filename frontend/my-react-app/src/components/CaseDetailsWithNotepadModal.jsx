@@ -234,7 +234,7 @@ export default function CaseDetailsWithNotepadModal({
               </div>
 
               <div className="hash-verification-banner">
-                <span className="hash-tag">e-SAKSHYA SHA-256 INTEGRITY HASH:</span>
+                <span className="hash-tag">CEDAR SHA-256 INTEGRITY HASH:</span>
                 <code className="hash-code">{selectedCase.evidenceHash || 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'}</code>
                 <span className="hash-cert-note">
                   ✓ Certified Tamper-Evident under Section 65B Indian Evidence Act / Section 63 BSA 2023

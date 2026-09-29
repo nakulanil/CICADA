@@ -389,7 +389,7 @@ export default function RegistrationPage() {
             </button>
 
             <div className="auth-bottom-switch">
-              <span>Already registered with e-SAKSHYA?</span>
+              <span>Already registered with CEDAR?</span>
               <Link to="/login" className="link-btn-switch">
                 Sign In to Existing Account ➔
               </Link>

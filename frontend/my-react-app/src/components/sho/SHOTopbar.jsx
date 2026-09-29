@@ -21,10 +21,10 @@ export default function SHOTopbar({ currentUser, onOpenProfile, onLogout }) {
 
 	return (
 		<header className="sho-topbar">
-			<div className="sho-topbar-brand" aria-label="e-SAKSHYA Ministry of Home Affairs">
+			<div className="sho-topbar-brand" aria-label="CEDAR Ministry of Home Affairs">
 				<NationalEmblem size={68} />
 				<div className="sho-brand-copy">
-					<span className="sho-brand-primary">e-SAKSHYA</span>
+					<span className="sho-brand-primary">CEDAR</span>
 					<span className="sho-brand-secondary">MINISTRY OF HOME AFFAIRS</span>
 				</div>
 			</div>

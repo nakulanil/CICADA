@@ -359,7 +359,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }) {
           </button>
 
           <div className="figma-auth-footer-switch">
-            <span>Already registered with e-SAKSHYA?</span>
+            <span>Already registered with CEDAR?</span>
             <button
               type="button"
               className="btn-figma-link"

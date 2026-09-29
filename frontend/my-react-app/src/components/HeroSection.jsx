@@ -4,7 +4,7 @@ import secretariatHeroImg from '../assets/tiranga.png'
 /**
  * Hero Section (Exact Figma Page 1 Frame 1)
  * - Central Secretariat architectural background
- * - White bold headline: "Welcome to e-SAKSHYA"
+ * - White bold headline: "Welcome to CEDAR"
  * - Subtitle: "A unified platform for secure, tamper-evident digital evidence workflow across agencies."
  * - [ Register ] and [ Login ] buttons
  */

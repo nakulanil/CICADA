@@ -17,7 +17,7 @@ export default function ContactSection({ copy }) {
 
         <div className="contact-details-list-block">
           <div className="contact-line-item">
-            <strong>{copy.email}</strong> <a href="mailto:esakshya.co@gmail.com">esakshya.co@gmail.com</a>
+            <strong>{copy.email}</strong> <a href="mailto:cedar.digital.in@gmail.com">cedar.digital.in@gmail.com</a>
           </div>
           <div className="contact-line-item">
             <strong>{copy.project}</strong> {copy.projectValue}

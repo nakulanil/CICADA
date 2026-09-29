@@ -33,10 +33,10 @@ export default function Navbar({
       <nav className="gov-main-navbar">
         <div className="site-container nav-flex-wrapper">
           {/* Brand Logo & Authority */}
-          <Link to="/" className="brand-logo-group" title="e-SAKSHYA - Home">
+          <Link to="/" className="brand-logo-group" title="CEDAR - Home">
             <NationalEmblem size={64} color="#0f172a" />
             <div className="brand-identity-text">
-              <span className="brand-primary-acronym">e-SAKSHYA</span>
+              <span className="brand-primary-acronym">CEDAR</span>
               <span className="brand-authority-title">MINISTRY OF HOME AFFAIRS</span>
             </div>
           </Link>
